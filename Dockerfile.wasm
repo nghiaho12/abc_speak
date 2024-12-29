@@ -1,0 +1,47 @@
+FROM debian:12.8
+
+RUN apt update && \
+    apt install -y g++ git cmake python3 xz-utils
+
+ENV EMSDK_VER=3.1.73
+
+RUN git clone -b $EMSDK_VER --depth 1 https://github.com/emscripten-core/emsdk.git
+RUN cd emsdk && \
+    ./emsdk install $EMSDK_VER
+
+RUN git clone -b preview-3.1.6 --depth 1 https://github.com/libsdl-org/SDL.git
+
+RUN cd /emsdk && \
+    ./emsdk activate $EMSDK_VER && \
+    . ./emsdk_env.sh && \
+    cd /SDL && \
+    mkdir build && \
+    cd build && \
+    emcmake cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    emmake make -j4 && \
+    emmake make install
+
+RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
+
+RUN cd /emsdk && \
+    ./emsdk activate $EMSDK_VER && \
+    . ./emsdk_env.sh && \
+    cd /glm && \
+    mkdir build && \
+    cd build && \
+    emcmake cmake -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF .. && \
+    emmake make && \
+    emmake make install
+
+WORKDIR /number_sequence_game
+COPY CMakeLists.txt /number_sequence_game
+COPY src/ /number_sequence_game/src/
+COPY assets/ /number_sequence_game/assets/
+
+RUN mkdir build && \
+    cd build && \
+    /bin/bash -c ". /emsdk/emsdk_env.sh && emcmake cmake .. && VERBOSE=1 emmake make"
+
+COPY wasm/index.html /number_sequence_game/build
+
+CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/number_sequence_game/build"]
