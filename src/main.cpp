@@ -1,6 +1,3 @@
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_stdinc.h>
-#include <glm/gtc/type_ptr.hpp>
 #define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
 #define GL_GLEXT_PROTOTYPES
 
@@ -10,12 +7,12 @@
 #include <SDL3/SDL_opengles2.h>
 #include <SDL3/SDL_timer.h>
 
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdio>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <map>
 #include <optional>
 #include <random>
@@ -50,7 +47,7 @@ constexpr glm::vec4 FONT_OUTLINE = Color::white;
 constexpr float FONT_OUTLINE_FACTOR = 0.1f;
 constexpr float FONT_WIDTH = 0.15f;
 
-enum class AudioEnum { BGM, CLICK, CLAP, WIN };
+constexpr int AUDIO_RATE = 16000;
 
 using VoskModelPtr =  std::unique_ptr<VoskModel, void (*)(VoskModel *)>;
 using VoskRecognizerPtr =  std::unique_ptr<VoskRecognizer, void (*)(VoskRecognizer*)>;
@@ -60,11 +57,7 @@ struct AppState {
     SDL_Renderer *renderer = nullptr;
     SDL_GLContext gl_ctx;
     SDL_AudioDeviceID audio_device = 0;
-    SDL_AudioDeviceID recording_device = 0;
     SDL_AudioStream *recording_stream = nullptr;
-
-    std::vector<char> record_buf;
-    std::map<AudioEnum, Audio> audio;
 
     VoskModelPtr model{{}, {}};
     VoskRecognizerPtr recognizer{{}, {}};
@@ -139,6 +132,58 @@ void init_game(AppState &as) {
     resize_event(as);
 }
 
+void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount) {
+    (void)additional_amount;
+
+    AppState &as = *static_cast<AppState*>(userdata);
+
+    if (!as.recognizer) {
+        return;
+    }
+
+    std::vector<char> buf(static_cast<size_t>(total_amount));
+    SDL_GetAudioStreamData(stream, buf.data(), total_amount);
+
+    auto parse_json = [](std::string str) {
+        size_t start = 0;
+        size_t end = 0;
+
+        size_t i = 0;
+        int count = 0;
+
+        for (auto ch: str) {
+            if (ch == '"') {
+                count++;
+
+                if (count == 3) {
+                    start = i;
+                } else if (count == 4) {
+                    end = i;
+                    break;
+                }
+            }
+            i++;
+        }
+
+        return str.substr(start + 1, end - start - 1);
+    };
+
+    int done = vosk_recognizer_accept_waveform(as.recognizer.get(), buf.data(), total_amount);
+
+    std::string word;
+    if (done) {
+        word = parse_json(vosk_recognizer_result(as.recognizer.get()));
+    } else {
+        // word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
+    }
+
+    // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
+    if (!word.empty()) {
+        LOG("word: %s", word.c_str());
+        as.spoken_letter = static_cast<char>(std::toupper(word[0]));
+    }
+}
+
 bool init_audio(AppState &as, const std::string &base_path) {
     as.audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
     if (as.audio_device == 0) {
@@ -146,51 +191,15 @@ bool init_audio(AppState &as, const std::string &base_path) {
         return false;
     }
 
-    if (auto w = load_ogg(as.audio_device, (base_path + "bgm.ogg").c_str(), 0.2f)) {
-        as.audio[AudioEnum::BGM] = *w;
-    } else {
-        return false;
-    }
-
-    if (auto w = load_ogg(as.audio_device, (base_path + "win.ogg").c_str())) {
-        as.audio[AudioEnum::WIN] = *w;
-    } else {
-        return false;
-    }
-
-    if (auto w = load_ogg(as.audio_device, (base_path + "clap.ogg").c_str())) {
-        as.audio[AudioEnum::CLAP] = *w;
-    } else {
-        return false;
-    }
-
-    if (auto w = load_ogg(as.audio_device, (base_path + "switch30.ogg").c_str())) {
-        as.audio[AudioEnum::CLICK] = *w;
-    } else {
-        return false;
-    }
-
     SDL_AudioSpec spec{};
-    spec.freq = 16000;
+    spec.freq = AUDIO_RATE;
     spec.format = SDL_AUDIO_S16LE;
     spec.channels = 1;
 
-    as.recording_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec);
-
-    if (as.recording_device == 0) {
-        LOG("Failed to open recording device: %s", SDL_GetError());
-        return false;
-    }
-
-    as.recording_stream = SDL_CreateAudioStream(nullptr, &spec);
+    as.recording_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, record_callback, &as);
 
     if (!as.recording_stream) {
         LOG("Couldn't create recording stream: %s", SDL_GetError());
-        return false;
-    }
-
-    if (!SDL_BindAudioStream(as.recording_device, as.recording_stream)) {
-        LOG("Failed to bind stream to device: %s", SDL_GetError());
         return false;
     }
 
@@ -247,7 +256,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     );
 
     std::string grammar = "[\"a b c d e f g h i j k l m n o p q r s t u v w x y z\", \"[unk]\"]";   
-    as->recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as->model.get(), 16000.0, grammar.c_str()),
+    as->recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as->model.get(), AUDIO_RATE, grammar.c_str()),
         [](VoskRecognizer *recognizer) {        
             LOG("freeing vosk recognizer");
             vosk_recognizer_free(recognizer);
@@ -391,111 +400,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 SDL_AppResult SDL_AppIterate(void *appstate) {
     AppState &as = *static_cast<AppState *>(appstate);
 
-    auto &bgm = as.audio[AudioEnum::BGM];
-    if (SDL_GetAudioStreamAvailable(bgm.stream) < static_cast<int>(bgm.data.size())) {
-        bgm.play(false);
-    }
-
-    std::vector<char> buf(32000);
-    int bytes = SDL_GetAudioStreamData(as.recording_stream, buf.data(), static_cast<int>(buf.size()));
-    as.record_buf.insert(as.record_buf.end(), buf.begin(), buf.begin() + bytes);
-
-    if (as.record_buf.size() > static_cast<size_t>(2 * 16000 * 0.5)) {
-        auto parse_json = [](std::string str) {
-            size_t start = 0;
-            size_t end = 0;
-
-            size_t i = 0;
-            int count = 0;
-
-            for (auto ch: str) {
-                if (ch == '"') {
-                    count++;
-
-                    if (count == 3) {
-                        start = i;
-                    } else if (count == 4) {
-                        end = i;
-                        break;
-                    }
-                }
-                i++;
-            }
-
-            return str.substr(start + 1, end - start - 1);
-        };
-
-        int done = vosk_recognizer_accept_waveform(as.recognizer.get(), as.record_buf.data(), static_cast<int>(as.record_buf.size()));
-
-        std::string word;
-        if (done) {
-            word = parse_json(vosk_recognizer_result(as.recognizer.get()));
-        } else {
-            // word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
-        }
-
-        // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
-        if (!word.empty()) {
-            LOG("word: %s", word.c_str());
-        }
-
-        if (word == "a") {
-            as.spoken_letter = 'A';
-        } else if (word == "b" || word == "be") {
-            as.spoken_letter = 'B';
-        } else if (word == "c" || word == "see") {
-            as.spoken_letter = 'C';
-        } else if (word == "d" || word == "the") {
-            as.spoken_letter = 'D';
-        } else if (word == "e" || word == "he") {
-            as.spoken_letter = 'E';
-        } else if (word == "f" || word == "if") {
-            as.spoken_letter = 'F';
-        } else if (word == "g" || word == "gee") {
-            as.spoken_letter = 'G';
-        } else if (word == "h") {
-            as.spoken_letter = 'H';
-        } else if (word == "i" || word == "hi") {
-            as.spoken_letter = 'I';
-        } else if (word == "j" || word == "jay") {
-            as.spoken_letter = 'J';
-        } else if (word == "k" || word == "hey") {
-            as.spoken_letter = 'K';
-        } else if (word == "l" || word == "hell") {
-            as.spoken_letter = 'L';
-        } else if (word == "m" || word == "em") {
-            as.spoken_letter = 'M';
-        } else if (word == "n" || word == "in" || word == "and") {
-            as.spoken_letter = 'N';
-        } else if (word == "o" || word == "oh") {
-            as.spoken_letter = 'O';
-        } else if (word == "p") {
-            as.spoken_letter = 'P';
-        } else if (word == "q") {
-            as.spoken_letter = 'Q';
-        } else if (word == "r" || word == "ah") {
-            as.spoken_letter = 'R';
-        } else if (word == "s") {
-            as.spoken_letter = 'S';
-        } else if (word == "t" || word == "te") {
-            as.spoken_letter = 'T';
-        } else if (word == "u" || word == "you") {
-            as.spoken_letter = 'U';
-        } else if (word == "v") {
-            as.spoken_letter = 'V';
-        } else if (word == "w") {
-            as.spoken_letter = 'W';
-        } else if (word == "x" || word == "ex") {
-            as.spoken_letter = 'X';
-        } else if (word == "y" || word == "why") {
-            as.spoken_letter = 'Y';
-        } else if (word == "z" || word == "zebra") {
-            as.spoken_letter = 'Z';
-        }
-
-        as.record_buf.clear();
-    }
-
 #ifndef __EMSCRIPTEN__
     SDL_GL_MakeCurrent(as.window, as.gl_ctx);
 #endif
@@ -532,7 +436,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     };
 
     for (size_t i=0; i < 26; i++) {
-        if (as.spoken_letter == 'A' + i) {
+        if (as.spoken_letter == static_cast<char>('A' + i)) {
             as.font_shader.set_font_width(FONT_WIDTH*1.5);
         } else {
             as.font_shader.set_font_width(FONT_WIDTH);
