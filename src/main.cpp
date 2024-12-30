@@ -45,8 +45,8 @@ constexpr float FONT_WIDTH = 0.15f;
 
 constexpr int AUDIO_RATE = 44100;
 
-using VoskModelPtr =  std::unique_ptr<VoskModel, void (*)(VoskModel *)>;
-using VoskRecognizerPtr =  std::unique_ptr<VoskRecognizer, void (*)(VoskRecognizer*)>;
+using VoskModelPtr = std::unique_ptr<VoskModel, void (*)(VoskModel *)>;
+using VoskRecognizerPtr = std::unique_ptr<VoskRecognizer, void (*)(VoskRecognizer *)>;
 
 struct AppState {
     SDL_Window *window = nullptr;
@@ -123,7 +123,7 @@ bool resize_event(AppState &as) {
 void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount) {
     (void)additional_amount;
 
-    AppState &as = *static_cast<AppState*>(userdata);
+    AppState &as = *static_cast<AppState *>(userdata);
 
     if (!as.recognizer) {
         return;
@@ -139,7 +139,7 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
         size_t i = 0;
         int count = 0;
 
-        for (auto ch: str) {
+        for (auto ch : str) {
             if (ch == '"') {
                 count++;
 
@@ -167,10 +167,10 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
             LOG("done word [%ld]: %s", SDL_GetTicks(), word.c_str());
         }
     } else {
-        // word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
-        // if (!word.empty()) {
-        //     LOG("partial word [%ld]: %s", SDL_GetTicks(), word.c_str());
-        // }
+        word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
+        if (!word.empty()) {
+            LOG("partial word [%ld]: %s", SDL_GetTicks(), word.c_str());
+        }
     }
 
     // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
@@ -244,20 +244,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         return SDL_APP_FAILURE;
     }
 
-    as->model = VoskModelPtr(vosk_model_new("/home/nghia/.cache/vosk/vosk-model-small-en-us-0.15"), 
-        [](VoskModel *model) {        
+    as->model =
+        VoskModelPtr(vosk_model_new("/home/nghia/.cache/vosk/vosk-model-small-en-us-0.15"), [](VoskModel *model) {
             LOG("freeing vosk model");
             vosk_model_free(model);
-        }
-    );
+        });
 
-    std::string grammar = "[\"a b c d e f g h i j k l m n o p q r s t u v w x y z\", \"[unk]\"]";   
+    std::string grammar =
+        "[\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\",\"k\","
+        "\"l\",\"m\",\"n\",\"o\",\"p\",\"q\",\"r\",\"s\",\"t\",\"u\",\"v\",\"w\","
+        "\"x\",\"y\",\"z\", \"[unk]\"]";
     as->recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as->model.get(), AUDIO_RATE, grammar.c_str()),
-        [](VoskRecognizer *recognizer) {        
-            LOG("freeing vosk recognizer");
-            vosk_recognizer_free(recognizer);
-        }
-    );
+                                       [](VoskRecognizer *recognizer) {
+                                           LOG("freeing vosk recognizer");
+                                           vosk_recognizer_free(recognizer);
+                                       });
+
+    vosk_recognizer_set_endpointer_mode(as->recognizer.get(), VOSK_EP_ANSWER_SHORT);
+    // vosk_recognizer_set_endpointer_delays(as->recognizer.get(), 0.2f, 1.0, 30);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -317,12 +321,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
         int rows = 4;
         int cols = 7;
-        float xoff = FONT_WIDTH*0.5;
-        float yoff = FONT_WIDTH*0.5;
+        float xoff = FONT_WIDTH * 0.5;
+        float yoff = FONT_WIDTH * 0.5;
 
         size_t count = 0;
-        for (int i=0; i < rows; i++) {
-            for (int j=0; j < cols; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 float x = xoff + (static_cast<float>(j) / static_cast<float>(cols)) * NORM_WIDTH;
                 float y = yoff + (static_cast<float>(i) / static_cast<float>(rows)) * NORM_HEIGHT;
 
@@ -429,10 +433,17 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         Color::brown,
     };
 
-    for (size_t i=0; i < 26; i++) {
+    for (size_t i = 0; i < 26; i++) {
         if (as.spoken_letter == static_cast<char>('A' + i)) {
-            as.font_shader.set_font_width(FONT_WIDTH*1.2);
-            as.font_shader.set_fg(color[i % color.size()]);
+            as.font_shader.set_font_width(FONT_WIDTH * 1.2);
+
+            // glowing coloe effect
+            uint64_t now = SDL_GetTicksNS();
+            double t = SDL_NS_TO_SECONDS(now) + (now % SDL_NS_PER_SECOND) * 1e-9;
+            double f = 0.5;
+            float k = static_cast<float>(1 + 0.5 * std::sin(2 * M_PI * f * t));
+
+            as.font_shader.set_fg(color[i % color.size()] * k);
         } else {
             as.font_shader.set_font_width(FONT_WIDTH);
             as.font_shader.set_fg(Color::transparent);
