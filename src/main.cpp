@@ -13,9 +13,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <map>
-#include <optional>
-#include <random>
 #include <vector>
 
 #ifdef __EMSCRIPTEN__
@@ -23,7 +20,6 @@
 #include <emscripten/html5.h>
 #endif
 
-#include "audio.hpp"
 #include "color_palette.hpp"
 #include "font.hpp"
 #include "geometry.hpp"
@@ -47,7 +43,7 @@ constexpr glm::vec4 FONT_OUTLINE = Color::white;
 constexpr float FONT_OUTLINE_FACTOR = 0.1f;
 constexpr float FONT_WIDTH = 0.15f;
 
-constexpr int AUDIO_RATE = 16000;
+constexpr int AUDIO_RATE = 44100;
 
 using VoskModelPtr =  std::unique_ptr<VoskModel, void (*)(VoskModel *)>;
 using VoskRecognizerPtr =  std::unique_ptr<VoskRecognizer, void (*)(VoskRecognizer*)>;
@@ -73,7 +69,7 @@ struct AppState {
     Shape draw_area_bg;
 
     VertexBufferPtr letter{{}, {}};
-    std::array<glm::vec2, 26> letter_pos;
+    std::array<glm::vec2, 26> letter_center;
 
     char spoken_letter = 0;
 };
@@ -124,14 +120,6 @@ bool resize_event(AppState &as) {
     return true;
 }
 
-void init_game(AppState &as) {
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::uniform_int_distribution<> dice(0, 9);
-
-    resize_event(as);
-}
-
 void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount) {
     (void)additional_amount;
 
@@ -172,15 +160,23 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
 
     std::string word;
     if (done) {
-        word = parse_json(vosk_recognizer_result(as.recognizer.get()));
+        word = parse_json(vosk_recognizer_final_result(as.recognizer.get()));
+        vosk_recognizer_reset(as.recognizer.get());
+
+        if (!word.empty()) {
+            LOG("done word [%ld]: %s", SDL_GetTicks(), word.c_str());
+        }
     } else {
         // word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
+        // if (!word.empty()) {
+        //     LOG("partial word [%ld]: %s", SDL_GetTicks(), word.c_str());
+        // }
     }
 
     // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
     if (!word.empty()) {
-        LOG("word: %s", word.c_str());
-        as.spoken_letter = static_cast<char>(std::toupper(word[0]));
+        // LOG("word: %s", word.c_str());
+        as.spoken_letter = static_cast<char>(std::toupper(word.back()));
     }
 }
 
@@ -315,31 +311,29 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         as->draw_area_bg = make_shape(vertex, 0, {}, BG_COLOR);
     }
 
-    init_game(*as);
+    // letter position
+    {
+        std::tie(as->letter, std::ignore) = as->font.make_text("A", true);
 
-    std::tie(as->letter, std::ignore) = as->font.make_text("A", true);
+        int rows = 4;
+        int cols = 7;
+        float xoff = FONT_WIDTH*0.5;
+        float yoff = FONT_WIDTH*0.5;
 
-    int rows = 4;
-    int cols = 7;
-    float xoff = 0.02f;
+        size_t count = 0;
+        for (int i=0; i < rows; i++) {
+            for (int j=0; j < cols; j++) {
+                float x = xoff + (static_cast<float>(j) / static_cast<float>(cols)) * NORM_WIDTH;
+                float y = yoff + (static_cast<float>(i) / static_cast<float>(rows)) * NORM_HEIGHT;
 
-    size_t count = 0;
-    for (int i=0; i < rows; i++) {
-        for (int j=0; j < cols; j++) {
-            float x = xoff + (static_cast<float>(j) / static_cast<float>(cols)) * NORM_WIDTH;
-            float y = (static_cast<float>(i) + 0.8f) / static_cast<float>(rows) * NORM_HEIGHT;
+                as->letter_center[count] = {x, y};
 
-            as->letter_pos[count] = {x, y};
+                count++;
 
-            if (count >= 26) {
-                break;
+                if (count >= 26) {
+                    break;
+                }
             }
-
-            count++;
-        }
-
-        if (count >= 26) {
-            break;
         }
     }
 
@@ -437,18 +431,24 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     for (size_t i=0; i < 26; i++) {
         if (as.spoken_letter == static_cast<char>('A' + i)) {
-            as.font_shader.set_font_width(FONT_WIDTH*1.5);
+            as.font_shader.set_font_width(FONT_WIDTH*1.2);
+            as.font_shader.set_fg(color[i % color.size()]);
         } else {
             as.font_shader.set_font_width(FONT_WIDTH);
+            as.font_shader.set_fg(Color::transparent);
         }
-
-        as.font_shader.set_fg(color[i % color.size()]);
-        as.font_shader.set_trans(as.letter_pos[i]);
 
         std::string str;
         str = 'A' + static_cast<char>(i);
-        auto [vertex_uv, bbox] = as.font.make_text_vertex(str, true);
+
+        auto [vertex_uv, index] = as.font.make_text_vertex(str, true);
         as.letter->update_vertex(glm::value_ptr(vertex_uv[0]), sizeof(glm::vec4) * vertex_uv.size());
+
+        BBox b = bbox(vertex_uv);
+        glm::vec2 center = (b.start + b.end) * 0.5f * FONT_WIDTH;
+        glm::vec2 trans = as.letter_center[i] - center;
+        as.font_shader.set_trans(trans);
+
         draw_vertex_buffer(as.font_shader.shader, as.letter, as.font.tex);
     }
 
