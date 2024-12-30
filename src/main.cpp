@@ -1,5 +1,6 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_stdinc.h>
+#include <glm/gtc/type_ptr.hpp>
 #define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
 #define GL_GLEXT_PROTOTYPES
 
@@ -38,41 +39,16 @@
 // y: [0.0, 1/ASPECT_RATIO]
 // origin at top-left
 
-constexpr int SEQ_LEN = 4;
 constexpr float ASPECT_RATIO = 16.f / 9.f;
 constexpr float NORM_WIDTH = 1.f;
 constexpr float NORM_HEIGHT = 1.f / ASPECT_RATIO;
 
 constexpr glm::vec4 BG_COLOR = Color::darkgrey;
 
-constexpr float TEXT_LAYOUT1_X = 0.6f;
-constexpr float TEXT_LAYOUT1_Y = 3.f / 8.f;
-constexpr float TEXT_LAYOUT2_X = 0.35f;
-constexpr float TEXT_LAYOUT2_Y = 0.3f;
-
-constexpr glm::vec4 BUTTON_LINE_COLOR = Color::white;
-constexpr glm::vec4 BUTTON_FILL_COLOR = Color::blue;
-float BUTTON_LINE_THICKNESS = 0.005f;
-constexpr float BUTTON_RADIUS = 0.06f;
-constexpr float BUTTON_PADDING = 0.02f;
-
-constexpr glm::vec4 FONT_FG = Color::yellow;
-constexpr glm::vec4 FONT_FG2 = Color::yellow;
 constexpr glm::vec4 FONT_BG = Color::transparent;
 constexpr glm::vec4 FONT_OUTLINE = Color::white;
-constexpr glm::vec4 FONT_OUTLINE2 = Color::white;
-constexpr float FONT_OUTLINE_FACTOR = 0.0f;
+constexpr float FONT_OUTLINE_FACTOR = 0.1f;
 constexpr float FONT_WIDTH = 0.15f;
-constexpr float FONT_ENLARGE_SCALE = 1.3f;
-constexpr float FONT_SPACING = 0.1f;
-const glm::vec2 FONT_OFFSET = {-0.02f, 0.05f};
-
-constexpr float BOUNCE_ANIM_INITIAL_VEL = -0.25f;
-constexpr float BOUNCE_ANIM_ACC = 1.f;
-constexpr float BOUNCE_ANIM_DECAY = 0.75f;
-constexpr float BOUNCE_ANIM_DURATION_SEC = 2.5f;
-
-constexpr float GAME_DELAY_DURATION_SEC = 1.f;
 
 enum class AudioEnum { BGM, CLICK, CLAP, WIN };
 
@@ -94,11 +70,6 @@ struct AppState {
     VoskRecognizerPtr recognizer{{}, {}};
 
     bool init = false;
-    bool mouse_down = false;
-    int done_count = 0;
-
-    std::array<int, SEQ_LEN> number_sequence;
-    std::array<bool, SEQ_LEN> number_done;
 
     VertexArrayPtr vao{{}, {}};
 
@@ -107,37 +78,12 @@ struct AppState {
 
     ShapeShader shape_shader;
     Shape draw_area_bg;
-    Shape button;
 
-    float text_x;
-    float text_y;
+    VertexBufferPtr letter{{}, {}};
+    std::array<glm::vec2, 26> letter_pos;
 
-    std::array<VertexBufferPtr, 10> number{
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-        VertexBufferPtr{{}, {}},
-    };
-
-    std::array<BBox, 10> number_bbox;
-    std::array<glm::vec2, 10> button_center;
-
-    // time dependent events
-    uint64_t bounce_anim_start = 0;
-    uint64_t bounce_anim_end = 0;
-    float bounce_vel = -1.f;
-
-    uint64_t game_delay_end = 0;
+    char spoken_letter = 0;
 };
-
-void init_button_layout1(AppState &as);
-void init_button_layout2(AppState &as);
 
 bool resize_event(AppState &as) {
     int win_w, win_h;
@@ -190,67 +136,7 @@ void init_game(AppState &as) {
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dice(0, 9);
 
-    std::generate(as.number_sequence.begin(), as.number_sequence.end(), [&] { return dice(g); });
-    std::fill(as.number_done.begin(), as.number_done.end(), false);
-
-    if (as.done_count % 2 == 0) {
-        init_button_layout1(as);
-    } else {
-        init_button_layout2(as);
-    }
-
     resize_event(as);
-}
-
-void mouse_down_event(AppState &as) {
-    if (as.game_delay_end > 0) {
-        return;
-    }
-
-    if (as.mouse_down) {
-        return;
-    }
-
-    as.mouse_down = true;
-
-    float cx = 0, cy = 0;
-    SDL_GetMouseState(&cx, &cy);
-
-    glm::vec2 pos = screen_pos_to_normalize_pos(as.shape_shader, {cx, cy});
-    glm::vec2 radius{BUTTON_RADIUS, BUTTON_RADIUS};
-
-    for (size_t i = 0; i < as.button_center.size(); i++) {
-        const glm::vec2 &c = as.button_center[i];
-        glm::vec2 start = c - radius;
-        glm::vec2 end = c + radius;
-
-        if ((pos.x > start.x) && (pos.x < end.x) && (pos.y > start.y) && (pos.y < end.y)) {
-            as.audio[AudioEnum::CLICK].play(true);
-            int num_click = static_cast<int>(i + 1) % 10;
-
-            for (size_t j = 0; j < as.number_done.size(); j++) {
-                if (!as.number_done[j]) {
-                    if (num_click == as.number_sequence[j]) {
-                        as.number_done[j] = true;
-                        as.bounce_anim_start = 0;
-                    }
-
-                    break;
-                }
-            }
-
-            break;
-        }
-    }
-
-    // check if we wont
-    auto is_true = [](bool b) { return b; };
-    if (std::all_of(as.number_done.begin(), as.number_done.end(), is_true)) {
-        as.audio[AudioEnum::WIN].play(true);
-        as.audio[AudioEnum::CLAP].play(true);
-        as.game_delay_end = SDL_GetTicksNS() + SDL_SECONDS_TO_NS(GAME_DELAY_DURATION_SEC);
-        as.done_count++;
-    }
 }
 
 bool init_audio(AppState &as, const std::string &base_path) {
@@ -325,61 +211,6 @@ bool init_font(AppState &as, const std::string &base_path) {
     return true;
 }
 
-void init_button_layout1(AppState &as) {
-    constexpr int cols = 3;
-    constexpr int rows = 4;
-
-    float total_w = (BUTTON_RADIUS * 2) * cols + BUTTON_PADDING * (cols - 1);
-    float total_h = (BUTTON_RADIUS * 2) * rows + BUTTON_PADDING * (rows - 1);
-
-    float xoff = BUTTON_RADIUS + (NORM_WIDTH * 0.5f - total_w) * 0.5f;
-    float yoff = BUTTON_RADIUS + (NORM_HEIGHT - total_h) * 0.5f;
-
-    size_t idx = 0;
-    for (size_t i = 0; i < 3; i++) {
-        for (size_t j = 0; j < 3; j++) {
-            float x = xoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(j);
-            float y = yoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(i);
-
-            as.button_center[idx] = {x, y};
-            idx++;
-        }
-    }
-
-    // zero
-    float x = xoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(1);
-    float y = yoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(3);
-    as.button_center[9] = {x, y};
-
-    as.text_x = TEXT_LAYOUT1_X;
-    as.text_y = TEXT_LAYOUT1_Y;
-}
-
-void init_button_layout2(AppState &as) {
-    constexpr int cols = 5;
-    constexpr int rows = 2;
-
-    float total_w = (BUTTON_RADIUS * 2) * cols + BUTTON_PADDING * (cols - 1);
-    float total_h = (BUTTON_RADIUS * 2) * rows + BUTTON_PADDING * (rows - 1);
-
-    float xoff = BUTTON_RADIUS + (NORM_WIDTH - total_w) * 0.5f;
-    float yoff = BUTTON_RADIUS + NORM_HEIGHT * 0.5f + (NORM_HEIGHT * 0.5f - total_h) * 0.5f;
-
-    size_t idx = 0;
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            float x = xoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(j);
-            float y = yoff + (2 * BUTTON_RADIUS + BUTTON_PADDING) * static_cast<float>(i);
-
-            as.button_center[idx] = {x, y};
-            idx++;
-        }
-    }
-
-    as.text_x = TEXT_LAYOUT2_X;
-    as.text_y = TEXT_LAYOUT2_Y;
-}
-
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     // Unused
     (void)argc;
@@ -415,7 +246,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         }
     );
 
-    as->recognizer = VoskRecognizerPtr(vosk_recognizer_new(as->model.get(), 16000.0),
+    std::string grammar = "[\"a b c d e f g h i j k l m n o p q r s t u v w x y z\", \"[unk]\"]";   
+    as->recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as->model.get(), 16000.0, grammar.c_str()),
         [](VoskRecognizer *recognizer) {        
             LOG("freeing vosk recognizer");
             vosk_recognizer_free(recognizer);
@@ -451,12 +283,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         return SDL_APP_FAILURE;
     }
 
-    for (size_t i = 0; i < as->number.size(); i++) {
-        auto [vertex_buffer, bbox] = as->font.make_text(std::to_string(i).c_str(), true);
-        as->number[i] = std::move(vertex_buffer);
-        as->number_bbox[i] = bbox;
-    }
-
     if (!as->shape_shader.init()) {
         return SDL_APP_FAILURE;
     }
@@ -480,19 +306,33 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         as->draw_area_bg = make_shape(vertex, 0, {}, BG_COLOR);
     }
 
-    {
-        std::vector<glm::vec2> vertex{
-            {-BUTTON_RADIUS, -BUTTON_RADIUS},
-            {BUTTON_RADIUS, -BUTTON_RADIUS},
-            {BUTTON_RADIUS, BUTTON_RADIUS},
-            {-BUTTON_RADIUS, BUTTON_RADIUS},
-        };
-
-        as->button = make_shape(vertex, BUTTON_LINE_THICKNESS, BUTTON_LINE_COLOR, BUTTON_FILL_COLOR);
-    }
-
-    init_button_layout2(*as);
     init_game(*as);
+
+    std::tie(as->letter, std::ignore) = as->font.make_text("A", true);
+
+    int rows = 4;
+    int cols = 7;
+    float xoff = 0.02f;
+
+    size_t count = 0;
+    for (int i=0; i < rows; i++) {
+        for (int j=0; j < cols; j++) {
+            float x = xoff + (static_cast<float>(j) / static_cast<float>(cols)) * NORM_WIDTH;
+            float y = (static_cast<float>(i) + 0.8f) / static_cast<float>(rows) * NORM_HEIGHT;
+
+            as->letter_pos[count] = {x, y};
+
+            if (count >= 26) {
+                break;
+            }
+
+            count++;
+        }
+
+        if (count >= 26) {
+            break;
+        }
+    }
 
     return SDL_APP_CONTINUE;
 }
@@ -517,11 +357,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
             break;
 
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            mouse_down_event(as);
             break;
 
         case SDL_EVENT_MOUSE_BUTTON_UP:
-            as.mouse_down = false;
             break;
     }
 
@@ -553,11 +391,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
 SDL_AppResult SDL_AppIterate(void *appstate) {
     AppState &as = *static_cast<AppState *>(appstate);
 
-    if (as.game_delay_end != 0 && SDL_GetTicksNS() > as.game_delay_end) {
-        as.game_delay_end = 0;
-        init_game(as);
-    }
-
     auto &bgm = as.audio[AudioEnum::BGM];
     if (SDL_GetAudioStreamAvailable(bgm.stream) < static_cast<int>(bgm.data.size())) {
         bgm.play(false);
@@ -565,15 +398,99 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     std::vector<char> buf(32000);
     int bytes = SDL_GetAudioStreamData(as.recording_stream, buf.data(), static_cast<int>(buf.size()));
-
     as.record_buf.insert(as.record_buf.end(), buf.begin(), buf.begin() + bytes);
+
     if (as.record_buf.size() > static_cast<size_t>(2 * 16000 * 0.5)) {
+        auto parse_json = [](std::string str) {
+            size_t start = 0;
+            size_t end = 0;
+
+            size_t i = 0;
+            int count = 0;
+
+            for (auto ch: str) {
+                if (ch == '"') {
+                    count++;
+
+                    if (count == 3) {
+                        start = i;
+                    } else if (count == 4) {
+                        end = i;
+                        break;
+                    }
+                }
+                i++;
+            }
+
+            return str.substr(start + 1, end - start - 1);
+        };
+
         int done = vosk_recognizer_accept_waveform(as.recognizer.get(), as.record_buf.data(), static_cast<int>(as.record_buf.size()));
 
+        std::string word;
         if (done) {
-            LOG("%s", vosk_recognizer_result(as.recognizer.get()));
+            word = parse_json(vosk_recognizer_result(as.recognizer.get()));
         } else {
-            LOG("%s", vosk_recognizer_partial_result(as.recognizer.get()));
+            // word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
+        }
+
+        // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
+        if (!word.empty()) {
+            LOG("word: %s", word.c_str());
+        }
+
+        if (word == "a") {
+            as.spoken_letter = 'A';
+        } else if (word == "b" || word == "be") {
+            as.spoken_letter = 'B';
+        } else if (word == "c" || word == "see") {
+            as.spoken_letter = 'C';
+        } else if (word == "d" || word == "the") {
+            as.spoken_letter = 'D';
+        } else if (word == "e" || word == "he") {
+            as.spoken_letter = 'E';
+        } else if (word == "f" || word == "if") {
+            as.spoken_letter = 'F';
+        } else if (word == "g" || word == "gee") {
+            as.spoken_letter = 'G';
+        } else if (word == "h") {
+            as.spoken_letter = 'H';
+        } else if (word == "i" || word == "hi") {
+            as.spoken_letter = 'I';
+        } else if (word == "j" || word == "jay") {
+            as.spoken_letter = 'J';
+        } else if (word == "k" || word == "hey") {
+            as.spoken_letter = 'K';
+        } else if (word == "l" || word == "hell") {
+            as.spoken_letter = 'L';
+        } else if (word == "m" || word == "em") {
+            as.spoken_letter = 'M';
+        } else if (word == "n" || word == "in" || word == "and") {
+            as.spoken_letter = 'N';
+        } else if (word == "o" || word == "oh") {
+            as.spoken_letter = 'O';
+        } else if (word == "p") {
+            as.spoken_letter = 'P';
+        } else if (word == "q") {
+            as.spoken_letter = 'Q';
+        } else if (word == "r" || word == "ah") {
+            as.spoken_letter = 'R';
+        } else if (word == "s") {
+            as.spoken_letter = 'S';
+        } else if (word == "t" || word == "te") {
+            as.spoken_letter = 'T';
+        } else if (word == "u" || word == "you") {
+            as.spoken_letter = 'U';
+        } else if (word == "v") {
+            as.spoken_letter = 'V';
+        } else if (word == "w") {
+            as.spoken_letter = 'W';
+        } else if (word == "x" || word == "ex") {
+            as.spoken_letter = 'X';
+        } else if (word == "y" || word == "why") {
+            as.spoken_letter = 'Y';
+        } else if (word == "z" || word == "zebra") {
+            as.spoken_letter = 'Z';
         }
 
         as.record_buf.clear();
@@ -596,89 +513,39 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     as.vao->use();
 
-    float cx = 0, cy = 0;
-    SDL_GetMouseState(&cx, &cy);
-
     draw_shape(as.shape_shader, as.draw_area_bg, true, false, false);
 
-    as.font_shader.set_fg(FONT_FG);
     as.font_shader.set_bg(FONT_BG);
     as.font_shader.set_outline(FONT_OUTLINE);
     as.font_shader.set_outline_factor(FONT_OUTLINE_FACTOR);
-    as.font_shader.set_font_width(FONT_WIDTH);
 
-    size_t i = 0;
-    for (const auto &center : as.button_center) {
-        as.button.trans = center;
-        draw_shape(as.shape_shader, as.button, true, true, false);
+    const std::vector<glm::vec4> color{
+        Color::blue,
+        Color::orange,
+        Color::red,
+        Color::teal,
+        Color::green,
+        Color::yellow,
+        Color::purple,
+        Color::pink,
+        Color::brown,
+    };
 
-        glm::vec2 bbox_center = (as.number_bbox[i].start + as.number_bbox[i].end) * 0.5f;
-        bbox_center -= FONT_OFFSET;
-        bbox_center *= FONT_WIDTH;
-
-        as.font_shader.set_trans(center - bbox_center);
-        draw_vertex_buffer(as.font_shader.shader, as.number[(i + 1) % 10], as.font.tex);
-
-        i++;
-    }
-
-    as.font_shader.set_bg(FONT_BG);
-    as.font_shader.set_outline_factor(0.1f);
-
-    bool do_anim = true;
-
-    for (size_t i = 0; i < as.number_sequence.size(); i++) {
-        glm::vec2 pos{as.text_x + static_cast<float>(i) * FONT_SPACING, as.text_y * NORM_HEIGHT};
-
-        int num = as.number_sequence[i];
-
-        glm::vec2 bbox_center = (as.number_bbox[i].start + as.number_bbox[i].end) * 0.5f;
-        bbox_center -= FONT_OFFSET;
-
-        if (as.number_done[i]) {
-            bbox_center *= FONT_WIDTH * FONT_ENLARGE_SCALE;
-
-            as.font_shader.set_font_width(FONT_WIDTH * FONT_ENLARGE_SCALE);
-            as.font_shader.set_fg(FONT_FG2);
-            as.font_shader.set_outline(FONT_OUTLINE);
+    for (size_t i=0; i < 26; i++) {
+        if (as.spoken_letter == 'A' + i) {
+            as.font_shader.set_font_width(FONT_WIDTH*1.5);
         } else {
-            bbox_center *= FONT_WIDTH;
-
             as.font_shader.set_font_width(FONT_WIDTH);
-            as.font_shader.set_fg(Color::transparent);
-            as.font_shader.set_outline(FONT_OUTLINE2);
-
-            if (do_anim) {
-                if (as.bounce_anim_start == 0) {
-                    as.bounce_anim_start = SDL_GetTicksNS();
-                    as.bounce_anim_end = as.bounce_anim_start + SDL_SECONDS_TO_NS(BOUNCE_ANIM_DURATION_SEC);
-                    as.bounce_vel = BOUNCE_ANIM_INITIAL_VEL;
-                }
-
-                float u = as.bounce_vel;
-                float a = BOUNCE_ANIM_ACC;
-                float t = static_cast<float>(static_cast<double>(SDL_GetTicksNS() - as.bounce_anim_start) * 1e-9);
-                float d = u * t + a * t * t * 0.5f;
-
-                if (d > 0) {
-                    d = 0;
-                    as.bounce_vel *= BOUNCE_ANIM_DECAY;
-                    as.bounce_anim_start = SDL_GetTicksNS();
-
-                    if (SDL_GetTicksNS() > as.bounce_anim_end) {
-                        as.bounce_vel = BOUNCE_ANIM_INITIAL_VEL;
-                        as.bounce_anim_end = as.bounce_anim_start + SDL_SECONDS_TO_NS(BOUNCE_ANIM_DURATION_SEC);
-                    }
-                }
-
-                pos.y += d;
-
-                do_anim = false;
-            }
         }
 
-        as.font_shader.set_trans(pos - bbox_center);
-        draw_vertex_buffer(as.font_shader.shader, as.number[static_cast<size_t>(num)], as.font.tex);
+        as.font_shader.set_fg(color[i % color.size()]);
+        as.font_shader.set_trans(as.letter_pos[i]);
+
+        std::string str;
+        str = 'A' + static_cast<char>(i);
+        auto [vertex_uv, bbox] = as.font.make_text_vertex(str, true);
+        as.letter->update_vertex(glm::value_ptr(vertex_uv[0]), sizeof(glm::vec4) * vertex_uv.size());
+        draw_vertex_buffer(as.font_shader.shader, as.letter, as.font.tex);
     }
 
     SDL_GL_SwapWindow(as.window);
