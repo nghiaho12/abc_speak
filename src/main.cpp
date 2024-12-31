@@ -439,8 +439,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
             // glowing coloe effect
             uint64_t now = SDL_GetTicksNS();
-            double t =
-                static_cast<double>(SDL_NS_TO_SECONDS(now)) + static_cast<double>(now % SDL_NS_PER_SECOND) * 1e-9;
+            double secs = static_cast<double>(SDL_NS_TO_SECONDS(now));
+            double frac = static_cast<double>(now % SDL_NS_PER_SECOND) * 1e-9;
+            double t = secs + frac;
             double f = 0.5;
             double lo = 0.2;
             double hi = 1.0;
