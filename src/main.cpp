@@ -439,9 +439,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
             // glowing coloe effect
             uint64_t now = SDL_GetTicksNS();
-            double t = SDL_NS_TO_SECONDS(now) + (now % SDL_NS_PER_SECOND) * 1e-9;
+            double t =
+                static_cast<double>(SDL_NS_TO_SECONDS(now)) + static_cast<double>(now % SDL_NS_PER_SECOND) * 1e-9;
             double f = 0.5;
-            float k = static_cast<float>(1 + 0.5 * std::sin(2 * M_PI * f * t));
+            double lo = 0.2;
+            double hi = 1.0;
+            double a = (hi + lo) * 0.5;
+
+            float k = static_cast<float>((lo + a) + a * std::sin(2 * M_PI * f * t));
 
             as.font_shader.set_fg(color[i % color.size()] * k);
         } else {
