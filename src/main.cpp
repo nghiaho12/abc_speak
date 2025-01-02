@@ -245,7 +245,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     }
 
     as->model =
-        VoskModelPtr(vosk_model_new("/home/nghia/.cache/vosk/vosk-model-small-en-us-0.15"), [](VoskModel *model) {
+        VoskModelPtr(vosk_model_new((base_path + "vosk-model-small-en-us-0.15").c_str()), [](VoskModel *model) {
             LOG("freeing vosk model");
             vosk_model_free(model);
         });
@@ -261,7 +261,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
                                        });
 
     vosk_recognizer_set_endpointer_mode(as->recognizer.get(), VOSK_EP_ANSWER_SHORT);
-    // vosk_recognizer_set_endpointer_delays(as->recognizer.get(), 0.2f, 1.0, 30);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -437,7 +436,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         if (as.spoken_letter == static_cast<char>('A' + i)) {
             as.font_shader.set_font_width(FONT_WIDTH * 1.2);
 
-            // glowing coloe effect
+            // glowing color effect
             uint64_t now = SDL_GetTicksNS();
             double secs = static_cast<double>(SDL_NS_TO_SECONDS(now));
             double frac = static_cast<double>(now % SDL_NS_PER_SECOND) * 1e-9;

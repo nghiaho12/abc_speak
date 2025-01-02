@@ -1,6 +1,11 @@
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
+LOCAL_MODULE := vosk
+LOCAL_SRC_FILES := libvosk.so
+include $(PREBUILT_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
@@ -18,13 +23,13 @@ LOCAL_SRC_FILES := \
     gl_helper.cpp \
     gl_helper.hpp \
     log.hpp \
-	color_palette.hpp
+	color_palette.hpp 
  
 SDL_PATH := ../SDL  # SDL \
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include  # SDL
 
-LOCAL_SHARED_LIBRARIES := SDL3
+LOCAL_SHARED_LIBRARIES := SDL3 vosk
 
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv3 -lOpenSLES -llog -landroid  # SDL
 
