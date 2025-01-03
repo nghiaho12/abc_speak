@@ -6,6 +6,8 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_opengles2.h>
 #include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_system.h>
+#include <SDL3/SDL_iostream.h>
 
 #include <array>
 #include <cmath>
@@ -31,6 +33,7 @@
 // x: [0.0, 1.0]
 // y: [0.0, 1/ASPECT_RATIO]
 // origin at top-left
+const char *VOSK_MODEL = "vosk-model-small-en-us-0.15";
 
 constexpr float ASPECT_RATIO = 16.f / 9.f;
 constexpr float NORM_WIDTH = 1.f;
@@ -180,7 +183,7 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
     }
 }
 
-bool init_audio(AppState &as, const std::string &base_path) {
+bool init_audio(AppState &as, const std::string &asset_path) {
     as.audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
     if (as.audio_device == 0) {
         LOG("Couldn't open audio device: %s", SDL_GetError());
@@ -204,8 +207,8 @@ bool init_audio(AppState &as, const std::string &base_path) {
     return true;
 }
 
-bool init_font(AppState &as, const std::string &base_path) {
-    if (!as.font.load(base_path + "atlas.bmp", base_path + "atlas.txt")) {
+bool init_font(AppState &as, const std::string &asset_path) {
+    if (!as.font.load(asset_path + "atlas.bmp", asset_path + "atlas.txt")) {
         return false;
     }
 
@@ -213,6 +216,68 @@ bool init_font(AppState &as, const std::string &base_path) {
         return false;
     }
 
+    return true;
+}
+
+bool init_vosk_android() {
+#ifdef __ANDROID__
+    std::string vosk_path = std::string(SDL_GetAndroidExternalStoragePath()) + "/" + VOSK_MODEL;
+
+    for (auto subdir: {"conf", "am", "graph/phones", "ivector"}) {
+        SDL_PathInfo info;
+        std::string path = vosk_path + "/" + subdir;
+
+        if (!SDL_GetPathInfo(path.c_str(), &info)) {
+            if (SDL_CreateDirectory(path.c_str())) {
+                LOG("creating dir: %s", path.c_str());
+            } else {
+                LOG("can't create dir: %s", path.c_str());
+                return false;
+            }
+        }
+    }
+
+    const std::vector<std::string> files{
+        "conf/model.conf",
+        "conf/mfcc.conf",
+        "am/final.mdl",
+        "graph/Gr.fst",
+        "graph/HCLr.fst",
+        "graph/phones/word_boundary.int",
+        "graph/disambig_tid.int",
+        "ivector/online_cmvn.conf",
+        "ivector/final.mat",
+        "ivector/splice.conf",
+        "ivector/global_cmvn.stats",
+        "ivector/final.dubm",
+        "ivector/final.ie",
+    };
+
+    for (auto f: files) {
+        std::string in_path = std::string(VOSK_MODEL) + "/" + f;
+        std::string out_path = vosk_path + "/" + f;
+
+        SDL_PathInfo info;
+        if (SDL_GetPathInfo(out_path.c_str(), &info)) {
+            LOG("Vosk model file exists: %s", out_path.c_str());
+        } else {
+            LOG("Copying Vosk model file to: %s", out_path.c_str());
+
+            size_t datasize;
+            void *data = SDL_LoadFile(in_path.c_str(), &datasize);
+
+            if (!data) {
+                LOG("can't open file: %s", in_path.c_str());
+                return false;
+            }
+
+            if (!SDL_SaveFile(out_path.c_str(), data, datasize)) {
+                LOG("can't save file: %s", out_path.c_str());
+                return false;
+            }
+        }
+    }
+#endif
     return true;
 }
 
@@ -235,20 +300,32 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
     *appstate = as;
 
-    std::string base_path = "assets/";
+    std::string asset_path = "assets/";
+    std::string model_path = "assets/";
+
 #ifdef __ANDROID__
-    base_path = "";
+    asset_path = "";
+    if (!init_vosk_android()) {
+        return SDL_APP_FAILURE;
+    }
+
+    model_path = std::string(SDL_GetAndroidExternalStoragePath()) + "/";
 #endif
 
-    if (!init_audio(*as, base_path)) {
+    if (!init_audio(*as, asset_path)) {
         return SDL_APP_FAILURE;
     }
 
     as->model =
-        VoskModelPtr(vosk_model_new((base_path + "vosk-model-small-en-us-0.15").c_str()), [](VoskModel *model) {
+        VoskModelPtr(vosk_model_new((model_path + VOSK_MODEL).c_str()), [](VoskModel *model) {
             LOG("freeing vosk model");
             vosk_model_free(model);
         });
+
+    if (!as->model) {
+        LOG("can't load model at: %s", (model_path + VOSK_MODEL).c_str());
+        return SDL_APP_FAILURE;
+    }
 
     std::string grammar =
         "[\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\",\"k\","
@@ -271,7 +348,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
     if (!SDL_CreateWindowAndRenderer(
-            "Number Sequence Game", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL, &as->window, &as->renderer)) {
+            "ABC speak", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS, &as->window, &as->renderer)) {
         LOG("SDL_CreateWindowAndRenderer failed");
         return SDL_APP_FAILURE;
     }
@@ -281,13 +358,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         return SDL_APP_FAILURE;
     }
 
+    SDL_SetWindowFullscreen(as->window, true);
+
 #ifndef __EMSCRIPTEN__
     as->gl_ctx = SDL_GL_CreateContext(as->window);
     SDL_GL_MakeCurrent(as->window, as->gl_ctx);
     enable_gl_debug_callback();
 #endif
 
-    if (!init_font(*as, base_path)) {
+    if (!init_font(*as, asset_path)) {
         return SDL_APP_FAILURE;
     }
 
@@ -320,8 +399,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
         int rows = 4;
         int cols = 7;
-        float xoff = FONT_WIDTH * 0.5;
-        float yoff = FONT_WIDTH * 0.5;
+        float xoff = FONT_WIDTH * 0.5f;
+        float yoff = FONT_WIDTH * 0.5f;
 
         size_t count = 0;
         for (int i = 0; i < rows; i++) {

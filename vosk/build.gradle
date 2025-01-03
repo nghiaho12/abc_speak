@@ -1,0 +1,39 @@
+def archiveName = "vosk-android"
+def pomName = "Vosk Android"
+def pomDescription = "Vosk speech recognition library for Android"
+
+android {
+    namespace 'org.vosk'
+    compileSdkVersion 34
+    defaultConfig {
+        minSdkVersion 28
+        targetSdkVersion 34
+        versionCode 10
+        versionName = version
+        archivesBaseName = archiveName
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    ndkPath "/android-ndk-r27c"
+}
+
+task buildVosk(type: Exec) {
+    commandLine './build-vosk.sh'
+    environment ANDROID_NDK_HOME: android.getNdkDirectory()
+}
+
+dependencies {
+    api 'net.java.dev.jna:jna:5.13.0@aar'
+}
+
+//preBuild.dependsOn buildVosk
+
+mavenPublishing {
+    coordinates("com.alphacephei", archiveName, version)
+    pom {
+        name = pomName
+        description = pomDescription
+    }
+}

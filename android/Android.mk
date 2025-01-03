@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := vosk
-LOCAL_SRC_FILES := libvosk.so
+LOCAL_SRC_FILES := kaldi_$(TARGET_ARCH_ABI)/vosk/libvosk.so
 include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -31,6 +31,6 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include  # SDL
 
 LOCAL_SHARED_LIBRARIES := SDL3 vosk
 
-LOCAL_LDLIBS := -lGLESv1_CM -lGLESv3 -lOpenSLES -llog -landroid  # SDL
+LOCAL_LDLIBS := -lGLESv1_CM -lGLESv3 -lOpenSLES -llog -landroid 
 
 include $(BUILD_SHARED_LIBRARY)
