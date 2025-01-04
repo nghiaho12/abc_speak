@@ -284,7 +284,7 @@ bool init_vosk_model(AppState &as, const std::string &model_path) {
 
     if (!as.model) {
         LOG("can't load model at: %s", (model_path + VOSK_MODEL).c_str());
-        return SDL_APP_FAILURE;
+        return false;
     }
 
     std::string grammar =
@@ -523,14 +523,18 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             double secs = static_cast<double>(SDL_NS_TO_SECONDS(now));
             double frac = static_cast<double>(now % SDL_NS_PER_SECOND) * 1e-9;
             double t = secs + frac;
-            double f = 0.5;
-            double lo = 0.2;
+            double f = 0.75;
+            double lo = 0.5;
             double hi = 1.0;
-            double a = (hi + lo) * 0.5;
+            double a = (hi - lo) * 0.5;
+            double c = (hi + lo) * 0.5;
 
-            float k = static_cast<float>((lo + a) + a * std::sin(2 * M_PI * f * t));
+            float k = static_cast<float>(c + a * std::sin(2 * M_PI * f * t));
 
-            as.font_shader.set_fg(color[i % color.size()] * k);
+            glm::vec4 col = color[i % color.size()] * k; 
+            col[3] = 1.f; // alpha
+                          
+            as.font_shader.set_fg(col);
         } else {
             as.font_shader.set_font_width(FONT_WIDTH);
             as.font_shader.set_fg(Color::transparent);
