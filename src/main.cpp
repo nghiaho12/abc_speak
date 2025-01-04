@@ -176,9 +176,7 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
         }
     }
 
-    // LOG("time: %f", (SDL_GetTicksNS() - s)*1e-6);
     if (!word.empty() && word != "[unk]") {
-        // LOG("word: %s", word.c_str());
         as.spoken_letter = static_cast<char>(std::toupper(word.back()));
     }
 }
