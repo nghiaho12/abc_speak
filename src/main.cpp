@@ -281,6 +281,34 @@ bool init_vosk_android() {
     return true;
 }
 
+bool init_vosk_model(AppState &as, const std::string &model_path) {
+    as.model =
+        VoskModelPtr(vosk_model_new((model_path + VOSK_MODEL).c_str()), [](VoskModel *model) {
+                LOG("freeing vosk model");
+                vosk_model_free(model);
+                });
+
+    if (!as.model) {
+        LOG("can't load model at: %s", (model_path + VOSK_MODEL).c_str());
+        return SDL_APP_FAILURE;
+    }
+
+    std::string grammar =
+        "[\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\",\"k\","
+        "\"l\",\"m\",\"n\",\"o\",\"p\",\"q\",\"r\",\"s\",\"t\",\"u\",\"v\",\"w\","
+        "\"x\",\"y\",\"z\", \"[unk]\"]";
+
+    as.recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as.model.get(), AUDIO_RATE, grammar.c_str()),
+            [](VoskRecognizer *recognizer) {
+            LOG("freeing vosk recognizer");
+            vosk_recognizer_free(recognizer);
+            });
+
+    vosk_recognizer_set_endpointer_mode(as.recognizer.get(), VOSK_EP_ANSWER_SHORT);
+
+    return true;
+}
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     // Unused
     (void)argc;
@@ -312,43 +340,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     model_path = std::string(SDL_GetAndroidExternalStoragePath()) + "/";
 #endif
 
+    if (!init_vosk_model(*as, model_path)) {
+        return SDL_APP_FAILURE;
+    }
+
     if (!init_audio(*as, asset_path)) {
         return SDL_APP_FAILURE;
     }
 
-    as->model =
-        VoskModelPtr(vosk_model_new((model_path + VOSK_MODEL).c_str()), [](VoskModel *model) {
-            LOG("freeing vosk model");
-            vosk_model_free(model);
-        });
-
-    if (!as->model) {
-        LOG("can't load model at: %s", (model_path + VOSK_MODEL).c_str());
-        return SDL_APP_FAILURE;
-    }
-
-    std::string grammar =
-        "[\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\",\"k\","
-        "\"l\",\"m\",\"n\",\"o\",\"p\",\"q\",\"r\",\"s\",\"t\",\"u\",\"v\",\"w\","
-        "\"x\",\"y\",\"z\", \"[unk]\"]";
-    as->recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as->model.get(), AUDIO_RATE, grammar.c_str()),
-                                       [](VoskRecognizer *recognizer) {
-                                           LOG("freeing vosk recognizer");
-                                           vosk_recognizer_free(recognizer);
-                                       });
-
-    vosk_recognizer_set_endpointer_mode(as->recognizer.get(), VOSK_EP_ANSWER_SHORT);
-
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     // Android
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
     if (!SDL_CreateWindowAndRenderer(
-            "ABC speak", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS, &as->window, &as->renderer)) {
+            "ABC Speak", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS, &as->window, &as->renderer)) {
         LOG("SDL_CreateWindowAndRenderer failed");
         return SDL_APP_FAILURE;
     }

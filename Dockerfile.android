@@ -15,9 +15,9 @@ RUN cd cmdline-tools/bin && \
     yes | ./sdkmanager --licenses --sdk_root=/android-sdk && \
     ./sdkmanager "platform-tools" "platforms;android-14" --sdk_root=/android-sdk
 
-# Workaround for Vosk build error.
-# NDK r27c has stricter compiler warnings by default that causes compiling failure.
-# The workaround is to upgrade OpenBlas to 0.3.28 and enable the __EMSCRIPTEN__ define.
+WORKDIR /
+
+# Vosk API
 RUN git clone https://github.com/alphacep/vosk-api.git
 COPY vosk/build-vosk.sh vosk-api/android/lib
 RUN cd vosk-api/android/lib && \
@@ -25,7 +25,6 @@ RUN cd vosk-api/android/lib && \
     ANDROID_HOME=/android-sdk ANDROID_NDK_HOME=/android-ndk-r27c ./build-vosk.sh 
 
 # SDL
-WORKDIR /
 RUN git clone  https://github.com/libsdl-org/SDL.git
 RUN cd SDL/build-scripts && \
     git checkout 2d37903 && \
@@ -41,7 +40,7 @@ RUN mkdir -p /abc_speak/src && \
 RUN cd /SDL/build/org.libsdl.abc_speak/app/jni && \
     sed -i 's/# APP_STL/APP_STL/g' Application.mk
 
-# Enable C++20
+# Enable C++20, think NDK only goes up to C++17 though.
 RUN cd /SDL/build/org.libsdl.abc_speak/app/jni/src && \
     echo 'set(CMAKE_CXX_STANDARD 20)' >> CMakeLists.txt && \
     echo 'APP_CPPFLAGS := -std=c++20' >> /SDL/build/org.libsdl.abc_speak/app/jni/Application.mk
@@ -51,10 +50,10 @@ RUN cd /SDL/build/org.libsdl.abc_speak && \
     ANDROID_HOME=/android-sdk ANDROID_NDK_HOME=/android-ndk-r27c ./gradlew assembleDebug
 
 # Gradle is now available, build Vosk for Android
-COPY vosk/build.gradle /android-sdk/vosk-api/android/lib
-RUN cd /android-sdk/vosk-api/android/lib && \
+COPY vosk/build.gradle /vosk-api/android/lib
+RUN cd /vosk-api/android/lib && \
     ANDROID_HOME=/android-sdk `find /root/.gradle/wrapper -name gradle` build
-RUN ln -s /android-sdk/vosk-api/android/lib/build/kaldi_* /SDL/build/org.libsdl.abc_speak/app/jni/src
+RUN ln -s /vosk-api/android/lib/build/kaldi_* /SDL/build/org.libsdl.abc_speak/app/jni/src
 
 # GLM 
 RUN cd / && git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
@@ -67,9 +66,9 @@ RUN cd /SDL/build/org.libsdl.abc_speak/app && \
     sed -i "s/minSdkVersion 19/minSdkVersion 28/g" build.gradle && \
     sed -i "s/android-19/android-28/g" build.gradle 
 
+# Finally build our project
 RUN rm -rf /SDL/build/org.libsdl.abc_speak/app/src/main/res/
 
-# Build our actual project
 COPY src /SDL/build/org.libsdl.abc_speak/app/jni/src/
 COPY assets /SDL/build/org.libsdl.abc_speak/app/src/main/assets/
 COPY android/Android.mk /SDL/build/org.libsdl.abc_speak/app/jni/src
@@ -79,6 +78,6 @@ COPY android/res/ /SDL/build/org.libsdl.abc_speak/app/src/main/res/
 RUN cd /SDL/build/org.libsdl.abc_speak && \
     ANDROID_HOME=/android-sdk ANDROID_NDK_HOME=/android-ndk-r27c ./gradlew assembleDebug
 
-RUN mv /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/app-debug.apk /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/abc_speak-debug.apk
+RUN mv /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/app-debug.apk /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/abc_speak.apk
 
 CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug"]
