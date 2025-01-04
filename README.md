@@ -1,8 +1,10 @@
-An app I wrote to encourage my kid to learn the ABC alphabet. It employs Vosk to recognize speech. When the spoken letter is recognize the app will highlight it. 
+An app I wrote to encourage my kid to learn the ABC alphabet. It employs Vosk to recognize speech. When the spoken letter is recognized the app will highlight the it. 
+
+For best results pronounce each letter longer than you normally would. For example, say "Aaaaa".
 
 ![screenshot](screenshot.png)
 
-# Install
+# Build instructions
 ## Prerequisite
 This repo uses git LFS for the assets. Install it before cloning.
 ```
@@ -37,6 +39,8 @@ docker run --rm --network=host abc_speak_android
 ```
 
 Point your Android web browser to http://[IP of host]:8000. Download and install the APK.
+
+The APK is targeted at Android 9 (API Level 28) and above.
 
 ## Web
 ```

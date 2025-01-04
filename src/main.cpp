@@ -183,13 +183,7 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
     }
 }
 
-bool init_audio(AppState &as, const std::string &asset_path) {
-    as.audio_device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
-    if (as.audio_device == 0) {
-        LOG("Couldn't open audio device: %s", SDL_GetError());
-        return false;
-    }
-
+bool init_audio(AppState &as) {
     SDL_AudioSpec spec{};
     spec.freq = AUDIO_RATE;
     spec.format = SDL_AUDIO_S16LE;
@@ -344,7 +338,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
         return SDL_APP_FAILURE;
     }
 
-    if (!init_audio(*as, asset_path)) {
+    if (!init_audio(*as)) {
         return SDL_APP_FAILURE;
     }
 

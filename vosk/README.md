@@ -1,1 +1,1 @@
-Changes to make Vosk compile with Android NDK in Dockerfile.
+Changes to make Vosk compile with Android NDK used in Dockerfile.android.
