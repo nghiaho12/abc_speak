@@ -27,11 +27,13 @@ add_executable(${EXECUTABLE_NAME}
     src/color_palette.hpp
 )
 
-target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
-
 if (CMAKE_SYSTEM_NAME MATCHES Emscripten)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} /usr/local/lib/libvosk.so)
+    target_link_options(${EXECUTABLE_NAME} PRIVATE -sFULL_ES3 -sASSERTIONS -sALLOW_MEMORY_GROWTH --embed-file assets)
+
     file(CREATE_LINK "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets" SYMBOLIC)
 	set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os") # optimize for size
-    target_link_options(${EXECUTABLE_NAME} PRIVATE -sFULL_ES3 -sALLOW_MEMORY_GROWTH --embed-file assets)
+else()
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
 endif()

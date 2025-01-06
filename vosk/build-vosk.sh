@@ -112,7 +112,7 @@ make install
 cd $WORKDIR
 git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 cd $WORKDIR/kaldi/src
-CXX=$CXX AR=$AR RANLIB=$RANLIB CXXFLAGS="$ARCHFLAGS -O3 -D__EMSCRIPTEN__ -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" ./configure --use-cuda=no \
+CXX=$CXX AR=$AR RANLIB=$RANLIB CXXFLAGS="$ARCHFLAGS -O3 -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" ./configure --use-cuda=no \
     --mathlib=OPENBLAS_CLAPACK --shared \
     --android-incdir=${ANDROID_TOOLCHAIN_PATH}/sysroot/usr/include \
     --host=$HOST --openblas-root=${WORKDIR}/local \
