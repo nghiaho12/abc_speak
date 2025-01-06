@@ -16,13 +16,9 @@ Download the Vosk model.
 ./download_vosk_mode.sh
 ```
 
-Install Docker if you want to build for Android or web.
-```
-sudo apt install docker-ce
-```
-
 ## Linux
-Download and install SDL3 (https://github.com/libsdl-org/SDL/).
+- Install SDL3 (https://github.com/libsdl-org/SDL/)
+- Install Vosk API (https://alphacephei.com/vosk/install)
 
 ```
 cmake -B build
