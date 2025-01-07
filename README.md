@@ -1,4 +1,6 @@
-An app I wrote to encourage my kid to learn the ABC alphabet. It employs Vosk to recognize speech. When the spoken letter is recognized the app will highlight the it. 
+An app I wrote to encourage my kid to learn the ABC alphabet. 
+When the spoken letter is recognized (via microphone) it will get highlighted.
+The app will also respond the NATO phonetic alphabet (https://en.wikipedia.org/wiki/NATO_phonetic_alphabet)
 
 For best results pronounce each letter longer than you normally would. For example, say "Aaaaa".
 
@@ -11,9 +13,9 @@ This repo uses git LFS for the assets. Install it before cloning.
 sudo apt install git-lfs
 ```
 
-Download the Vosk model.
+Download the Vosk English model.
 ```
-./download_vosk_mode.sh
+./download_vosk_model.sh
 ```
 
 ## Linux

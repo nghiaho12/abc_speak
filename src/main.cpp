@@ -10,6 +10,7 @@
 #include <SDL3/SDL_iostream.h>
 
 #include <array>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <glm/glm.hpp>
@@ -169,8 +170,20 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
         word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
     }
 
+    if (!word.empty()) {
+        // LOG("Word: %s", word.c_str());
+    }
+
     if (!word.empty() && word != "[unk]") {
-        as.spoken_letter = static_cast<char>(std::toupper(word.back()));
+        // if the final word contains multiple words pick the letter of the last word
+        std::reverse(word.begin(), word.end());
+
+        for (auto ch: word) {
+            if (ch == ' ') {
+                break;
+            }
+            as.spoken_letter = static_cast<char>(std::toupper(ch));
+        }
     }
 }
 
@@ -278,10 +291,48 @@ bool init_vosk_model(AppState &as, const std::string &model_path) {
         return false;
     }
 
-    std::string grammar =
-        "[\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\",\"k\","
-        "\"l\",\"m\",\"n\",\"o\",\"p\",\"q\",\"r\",\"s\",\"t\",\"u\",\"v\",\"w\","
-        "\"x\",\"y\",\"z\", \"[unk]\"]";
+    std::vector<std::string> words;
+
+    for (int i=0; i < 26; i++) {
+        char ch[] = {static_cast<char>('a' + i)};
+        words.push_back(ch);
+    }
+
+    words.push_back("alfa");
+    words.push_back("bravo");
+    words.push_back("charlie");
+    words.push_back("delta");
+    words.push_back("echo");
+    words.push_back("foxtrot");
+    words.push_back("golf");
+    words.push_back("hotel");
+    words.push_back("india");
+    words.push_back("juliet");
+    words.push_back("kilo");
+    words.push_back("lima");
+    words.push_back("mike");
+    words.push_back("november");
+    words.push_back("oscar");
+    words.push_back("papa");
+    words.push_back("quebec");
+    words.push_back("romeo");
+    words.push_back("sierra");
+    words.push_back("tango");
+    words.push_back("uniform");
+    words.push_back("victor");
+    words.push_back("whiskey");
+    words.push_back("xray");
+    words.push_back("yankee");
+    words.push_back("zulu");
+
+    std::string grammar("[");
+
+    for (auto &w : words) {
+        grammar.append("\"");
+        grammar.append(w);
+        grammar.append("\",");
+    }
+    grammar.append("\"[unk]\"]");
 
     as.recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as.model.get(), AUDIO_RATE, grammar.c_str()),
             [](VoskRecognizer *recognizer) {
