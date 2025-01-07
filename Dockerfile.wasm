@@ -51,10 +51,8 @@ RUN /emsdk/emsdk activate $EMSDK_VER && \
     emconfigure ./configure --prefix=/kaldi_root --enable-static --disable-bin --enable-lookahead-fsts --enable-ngram-fsts && \
     emmake make -j 8 && \
     emmake make install
-    # sed -i '81s/.*/  openfst_add_CXXFLAGS = -g -O3 -msse -msse2 -msimd128 -sUSE_ZLIB=1 -DFST_NO_DYNAMIC_LINKING/g' Makefile && \
-    # sed -i '89s/.*/LDFLAGS=\"$(LDFLAGS)\" LIBS=\"-ldl\" --enable-shared=false/g' Makefile && \
 
-# Kaldi
+# Kaldi - vosk-android branch seems to work
 RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
@@ -90,27 +88,22 @@ WORKDIR /
 
 # SDL
 RUN git clone -b preview-3.1.6 --depth 1 https://github.com/libsdl-org/SDL.git
-RUN cd /emsdk && \
-    ./emsdk activate $EMSDK_VER && \
-    . ./emsdk_env.sh && \
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
     cd /SDL && \
-    mkdir build && \
-    cd build && \
-    emcmake cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    emmake make -j4 && \
-    emmake make install
+    emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release  && \
+    VERBOSE=1 cmake --build build && \
+    cmake --install build
 
 # GLM
 RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
-RUN cd /emsdk && \
-    ./emsdk activate $EMSDK_VER && \
-    . ./emsdk_env.sh && \
+
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
     cd /glm && \
-    mkdir build && \
-    cd build && \
-    emcmake cmake -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF .. && \
-    emmake make && \
-    emmake make install
+    emcmake cmake -B build -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF && \
+    VERBOSE=1 cmake --build build && \
+    cmake --install build
 
 # Finally our project
 WORKDIR /abc_speak
@@ -118,9 +111,10 @@ COPY CMakeLists.txt /abc_speak
 COPY src/ /abc_speak/src/
 COPY assets/ /abc_speak/assets/
 
-RUN mkdir build && \
-    cd build && \
-    /bin/bash -c ". /emsdk/emsdk_env.sh && emcmake cmake .. && VERBOSE=1 emmake make"
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
+    emcmake cmake -B build && \
+    VERBOSE=1 cmake --build build 
 
 COPY wasm/index.html /abc_speak/build
 
