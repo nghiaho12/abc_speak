@@ -165,15 +165,8 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
     if (done) {
         word = parse_json(vosk_recognizer_final_result(as.recognizer.get()));
         vosk_recognizer_reset(as.recognizer.get());
-
-        if (!word.empty()) {
-            LOG("done word [%ld]: %s", SDL_GetTicks(), word.c_str());
-        }
     } else {
         word = parse_json(vosk_recognizer_partial_result(as.recognizer.get()));
-        if (!word.empty()) {
-            LOG("partial word [%ld]: %s", SDL_GetTicks(), word.c_str());
-        }
     }
 
     if (!word.empty() && word != "[unk]") {
@@ -297,6 +290,8 @@ bool init_vosk_model(AppState &as, const std::string &model_path) {
             });
 
     vosk_recognizer_set_endpointer_mode(as.recognizer.get(), VOSK_EP_ANSWER_SHORT);
+
+    LOG("model loaded");
 
     return true;
 }

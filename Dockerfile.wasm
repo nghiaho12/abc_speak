@@ -59,6 +59,7 @@ RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
     cd /kaldi_root/kaldi/src && \
+    sed -i 's/g_num_threads = 8/g_num_threads = 0/g' util/kaldi-thread.cc && \
     touch /kaldi_root/lib/libopenblas.so && \
     export CXXFLAGS="-msimd128 -O3 -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" && \
     emconfigure ./configure --use-cuda=no --mathlib=OPENBLAS --static --openblas-root=/kaldi_root \
@@ -78,6 +79,7 @@ RUN /emsdk/emsdk activate $EMSDK_VER && \
     cd /kaldi_root/vosk-api/src && \
     sed -i 's/--shared/-shared/g' Makefile && \
     sed -i '14s/.*/extern "C" { int MAIN__(){return 0;} }/' vosk_api.cc && \
+    EXTRA_CFLAGS="-g" \
     KALDI_ROOT=/kaldi_root/kaldi \
     OPENFST_ROOT=/kaldi_root \
     OPENBLAS_ROOT=/kaldi_root \
