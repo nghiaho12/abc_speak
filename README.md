@@ -48,5 +48,7 @@ docker run --rm --network=host abc_speak_wasm
 
 Point your browser to http://localhost:8000.
 
+Hit F to toggle fullscreen.
+
 # Contact
 nghiaho12@yahoo.com
