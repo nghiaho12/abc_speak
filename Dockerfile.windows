@@ -1,0 +1,64 @@
+FROM debian:12.8
+
+RUN apt update && \
+    apt install -y g++ git cmake wget unzip pkg-config python3 autoconf libtool \
+    bzip2 unzip wget sox gfortran mingw-w64
+
+WORKDIR /
+
+RUN git clone https://github.com/libsdl-org/SDL.git
+COPY x86_64-w64-mingw32.cmake /
+RUN cd SDL && \
+    git checkout 2d37903 && \
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
+    cmake --build build --parallel 6 && \
+    cmake --install build --prefix=/win
+
+RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
+RUN cd /glm && \
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF && \
+    cmake --build build && \
+    cmake --install build --prefix=/win
+
+# OpenBLAS
+RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
+RUN cd /OpenBLAS && \
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DTARGET=HASWELL -DONLY_CBLAS=1 && \
+    cmake --build build --parallel 6 && \
+    cmake --install build --prefix=/win
+
+# CLAPACK
+RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
+RUN cd clapack && \
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DCMAKE_SYSTEM_NAME=Generic -DCMAKE_CROSSCOMPILING=True && \
+    cd build && \
+    make -j 8 -C F2CLIBS/libf2c && \
+    make -j 8 -C BLAS/SRC && \
+    make -j 8 -C SRC && \
+    find . -name "*.a" | xargs cp -t /win/lib 
+
+# OpenFST
+RUN git clone https://github.com/alphacep/openfst
+RUN cd openfst && \
+    autoreconf -i && \
+    AR=x86_64-w64-mingw32-ar \
+    LD=x86_64-w64-mingw32-ld \
+    CC=x86_64-w64-mingw32-gcc-posix \ 
+    CXX=x86_64-w64-mingw32-g++-posix \
+    CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING" \
+    LDCLFAGS='-flto' \
+    ./configure --prefix=/win \
+        --enable-shared --enable-static --with-pic --disable-bin \
+        --enable-lookahead-fsts --enable-ngram-fsts --host=x86_64-windows && \
+    make -j 8 && \
+    make install
+
+# # Finally build our project
+# RUN rm -rf /SDL/build/org.libsdl.abc_speak/app/src/main/res/
+#
+# COPY src /SDL/build/org.libsdl.abc_speak/app/jni/src/
+# COPY assets /SDL/build/org.libsdl.abc_speak/app/src/main/assets/
+# COPY android/Android.mk /SDL/build/org.libsdl.abc_speak/app/jni/src
+# COPY android/AndroidManifest.xml /SDL/build/org.libsdl.abc_speak/app/src/main
+# COPY android/res/ /SDL/build/org.libsdl.abc_speak/app/src/main/res/
+# CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug"]
