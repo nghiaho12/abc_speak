@@ -418,7 +418,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     enable_gl_debug_callback();
 #endif
 
+#ifdef WIN32
     glewInit();
+#endif
 
     if (!init_font(*as, asset_path)) {
         return SDL_APP_FAILURE;
