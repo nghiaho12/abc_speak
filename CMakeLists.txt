@@ -36,7 +36,7 @@ if (CMAKE_SYSTEM_NAME MATCHES Emscripten)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os") # optimize for size
 elseif(WIN32)
     target_sources(${EXECUTABLE_NAME} PRIVATE src/glew.cpp src/GL/glew.h)
-    target_link_directories(${EXECUTABLE_NAME} PRIVATE /win/lib)
+    target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
 else()

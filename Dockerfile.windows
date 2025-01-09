@@ -14,7 +14,7 @@ ENV RANLIB=x86_64-w64-mingw32-ranlib
 COPY x86_64-w64-mingw32.cmake /
 
 # independent libs are built using multistage to avoid having to rebuild
-# everything if any of the layers changed.
+# everything if any of the stages changed.
 
 FROM base AS build_sdl
 RUN git clone https://github.com/libsdl-org/SDL.git
@@ -25,6 +25,7 @@ RUN cd SDL && \
         -DSDL_OPENGLES=ON && \
     cmake --build build --parallel 6 && \
     cmake --install build --prefix=/win32
+RUN cp /SDL/build/SDL3.dll /win32/lib
 
 FROM base AS build_glm
 RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
@@ -61,14 +62,9 @@ RUN cd clapack && \
     mkdir -p /win32/lib && \
     find . -name "*.a" | xargs cp -t /win32/lib 
 
-FROM base as build_project
-COPY --from=build_sdl /win32 /win32
-COPY --from=build_glm /win32 /win32
-COPY --from=build_openblas /win32 /win32
-COPY --from=build_clapack /win32 /win32
-
+FROM base AS build_openfst
 RUN git clone https://github.com/alphacep/openfst
-RUN cd openfst && \
+    RUN cd openfst && \
     autoreconf -i && \
     CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING" \
     LDCLFAGS='-flto' \
@@ -83,6 +79,11 @@ RUN cd openfst && \
     make -j 8 && \
     make install
 
+FROM base AS build_vosk
+COPY --from=build_openblas /win32 /win32
+COPY --from=build_clapack /win32 /win32
+COPY --from=build_openfst /win32 /win32
+
 RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 RUN cd /kaldi/src && \
     touch /win32/lib/libopenblas.so && \
@@ -96,10 +97,10 @@ RUN cd /kaldi/src && \
         --openblas-clapack-root=/win32 \
         --fst-root=/win32 \
         --fst-version=1.8.0 && \
-    make -j 8 depend && \
+    make -j 6 depend && \
     cd /kaldi/src && \
     sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
-    make -j 8 online2 rnnlm
+    make -j 6 online2 rnnlm
 
 RUN git clone https://github.com/alphacep/vosk-api 
 RUN cd /vosk-api/src && \
@@ -110,9 +111,13 @@ RUN cd /vosk-api/src && \
     OPENFST_ROOT=/win32 \
     OPENBLAS_ROOT=/win32\
         make -j4 && \
-    cp libvosk.dll /win32/lib
+    cp libvosk.* /win32/lib
 
-# Finally build our project
+FROM base AS build_project
+COPY --from=build_sdl /win32 /win32
+COPY --from=build_glm /win32 /win32
+COPY --from=build_vosk /win32 /win32
+
 WORKDIR /abc_speak
 COPY src /abc_speak/src
 COPY assets /abc_speak/assets
@@ -123,7 +128,7 @@ RUN cmake -B build \
         -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
     cmake --build build
 
-RUN cp /SDL/build/SDL3.dll /win/lib/libvosk.dll /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll /abc_speak/build
+RUN cp /win32/lib/SDL3.dll /win32/lib/libvosk.dll /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll /abc_speak/build
 
 CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
 

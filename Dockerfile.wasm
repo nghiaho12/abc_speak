@@ -114,11 +114,11 @@ COPY CMakeLists.txt /abc_speak
 COPY src/ /abc_speak/src/
 COPY assets/ /abc_speak/assets/
 
-RUN /emsdk/emsdk activate $EMSDK_VER && \
-    source /emsdk/emsdk_env.sh && \
-    emcmake cmake -B build && \
-    VERBOSE=1 cmake --build build 
-
-COPY wasm/index.html /abc_speak/build
-
-CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
+# RUN /emsdk/emsdk activate $EMSDK_VER && \
+#     source /emsdk/emsdk_env.sh && \
+#     emcmake cmake -B build && \
+#     VERBOSE=1 cmake --build build 
+#
+# COPY wasm/index.html /abc_speak/build
+#
+# CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
