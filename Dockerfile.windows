@@ -77,7 +77,8 @@ RUN cd /kaldi/src && \
         --static \
         --mathlib=OPENBLAS_CLAPACK \
         --openblas-clapack-root=/win \
-        --fst-root=/win --fst-version=1.8.0 && \
+        --fst-root=/win \
+        --fst-version=1.8.0 && \
     make -j 8 depend && \
     cd /kaldi/src && \
     sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
@@ -86,8 +87,7 @@ RUN cd /kaldi/src && \
 # Vosk
 RUN cd /vosk-api/src && \
     git checkout cf67ed6 && \
-    EXTRA_LDFLAGS=" -static-libgcc -static-libstdc++" \
-    # sed -i 's/--shared/-shared/g' Makefile && \
+    EXTRA_LDFLAGS="-static-libgcc -static-libstdc++" \
     EXT=dll \
     KALDI_ROOT=/kaldi \
     OPENFST_ROOT=/win \
@@ -96,6 +96,7 @@ RUN cd /vosk-api/src && \
     cp libvosk.dll /win/lib
 
 RUN apt install -y vim
+
 # Finally build our project
 WORKDIR /abc_speak
 COPY src /abc_speak/src
