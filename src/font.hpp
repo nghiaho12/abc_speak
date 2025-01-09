@@ -1,6 +1,11 @@
 #pragma once
 
+#ifdef WIN32
+#define GLEW_STATIC
+#include <GL/glew.h>
+#else
 #include <SDL3/SDL_opengles2.h>
+#endif
 
 #include <glm/glm.hpp>
 #include <map>

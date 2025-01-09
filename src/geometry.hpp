@@ -1,6 +1,4 @@
-#pragma once
-
-#include <SDL3/SDL_opengles2.h>
+// #include <SDL3/SDL_opengles2.h>
 
 #include <glm/glm.hpp>
 #include <vector>

@@ -1,6 +1,11 @@
-#include "geometry.hpp"
+#ifdef WIN32
+#define GLEW_STATIC
+#include <GL/glew.h>
+#else
+#include <SDL3/SDL_opengles2.h>
+#endif
 
-#include <GLES2/gl2.h>
+#include "geometry.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

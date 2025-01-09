@@ -1,8 +1,12 @@
-#include <GLES2/gl2.h>
-
-#include <glm/gtc/type_ptr.hpp>
+#ifdef WIN32
+#define GLEW_STATIC
+#include <GL/glew.h>
+#else
 #define GL_GLEXT_PROTOTYPES
 #include <SDL3/SDL_opengles2.h>
+#endif
+
+#include <glm/gtc/type_ptr.hpp>
 #include <SDL3/SDL_surface.h>
 
 #include <memory>
@@ -37,6 +41,7 @@ bool compile_shader(GLuint s, const char *shader) {
     return true;
 }
 
+#ifdef __linux__
 void debug_callback(GLenum source,
                     GLenum type,
                     GLuint id,
@@ -56,26 +61,42 @@ void debug_callback(GLenum source,
     (void)(length);
     (void)(userParam);
 }
+#endif
 
 }  // namespace
 
 void enable_gl_debug_callback() {
-#ifndef __EMSCRIPTEN__
+#ifdef __linux__
     glEnable(GL_DEBUG_OUTPUT_KHR);
     glDebugMessageCallbackKHR(debug_callback, 0);
 #endif
 }
 
-void VertexArray::use() { glBindVertexArrayOES(vao); }
+void VertexArray::use() { 
+#ifdef WIN32
+    glBindVertexArray(vao); 
+#else
+    glBindVertexArrayOES(vao); 
+#endif
+}
 
 VertexArrayPtr make_vertex_array() {
     auto cleanup = [](VertexArray *v) {
         LOG("deleting vertex array: %d", v->vao);
+#ifdef WIN32
+        glDeleteVertexArrays(1, &v->vao);
+#else
         glDeleteVertexArraysOES(1, &v->vao);
+#endif
     };
 
     VertexArrayPtr v(new VertexArray, cleanup);
+
+#ifdef WIN32
+    glGenVertexArrays(1, &v->vao);
+#else 
     glGenVertexArraysOES(1, &v->vao);
+#endif
 
     return v;
 }

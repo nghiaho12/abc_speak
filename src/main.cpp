@@ -1,11 +1,15 @@
-#include <SDL3/SDL_keycode.h>
-#define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
+#ifdef WIN32
+#define GLEW_STATIC
+#include <GL/glew.h>
+#else
 #define GL_GLEXT_PROTOTYPES
+#include <SDL3/SDL_opengles2.h>
+#endif
 
+#define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
-#include <SDL3/SDL_opengles2.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_system.h>
 #include <SDL3/SDL_iostream.h>
@@ -413,6 +417,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     SDL_GL_MakeCurrent(as->window, as->gl_ctx);
     enable_gl_debug_callback();
 #endif
+
+    glewInit();
 
     if (!init_font(*as, asset_path)) {
         return SDL_APP_FAILURE;
