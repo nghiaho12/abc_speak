@@ -7,28 +7,43 @@ RUN apt update && \
 WORKDIR /
 
 RUN git clone https://github.com/libsdl-org/SDL.git
+RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
+RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
+RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
+RUN git clone https://github.com/alphacep/openfst
+RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
+RUN git clone https://github.com/alphacep/vosk-api 
+
+ENV AR=x86_64-w64-mingw32-ar
+ENV LD=x86_64-w64-mingw32-ld
+ENV RANLIB=x86_64-w64-mingw32-ranlib
+ENV CC=x86_64-w64-mingw32-gcc-posix 
+ENV CXX=x86_64-w64-mingw32-g++-posix
+ENV RANLIB=x86_64-w64-mingw32-ranlib
+
 COPY x86_64-w64-mingw32.cmake /
+
+# SDL
 RUN cd SDL && \
     git checkout 2d37903 && \
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DSDL_OPENGLES=ON && \
     cmake --build build --parallel 6 && \
     cmake --install build --prefix=/win
 
-RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
+# GLM
 RUN cd /glm && \
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF && \
     cmake --build build && \
     cmake --install build --prefix=/win
 
 # OpenBLAS
-RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
 RUN cd /OpenBLAS && \
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DTARGET=HASWELL -DONLY_CBLAS=1 && \
     cmake --build build --parallel 6 && \
-    cmake --install build --prefix=/win
+    cmake --install build --prefix=/win && \
+    cp ./lapack-netlib/LAPACKE/include/*.h /win/include
 
 # CLAPACK
-RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
 RUN cd clapack && \
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake -DCMAKE_SYSTEM_NAME=Generic -DCMAKE_CROSSCOMPILING=True && \
     cd build && \
@@ -38,27 +53,55 @@ RUN cd clapack && \
     find . -name "*.a" | xargs cp -t /win/lib 
 
 # OpenFST
-RUN git clone https://github.com/alphacep/openfst
 RUN cd openfst && \
     autoreconf -i && \
-    AR=x86_64-w64-mingw32-ar \
-    LD=x86_64-w64-mingw32-ld \
-    CC=x86_64-w64-mingw32-gcc-posix \ 
-    CXX=x86_64-w64-mingw32-g++-posix \
     CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING" \
     LDCLFAGS='-flto' \
     ./configure --prefix=/win \
-        --enable-shared --enable-static --with-pic --disable-bin \
-        --enable-lookahead-fsts --enable-ngram-fsts --host=x86_64-windows && \
+        --enable-shared \
+        --with-pic \
+        --disable-bin \
+        --enable-lookahead-fsts \
+        --enable-ngram-fsts \
+        --host=x86_64-windows && \
     make -j 8 && \
     make install
 
-# # Finally build our project
-# RUN rm -rf /SDL/build/org.libsdl.abc_speak/app/src/main/res/
-#
-# COPY src /SDL/build/org.libsdl.abc_speak/app/jni/src/
-# COPY assets /SDL/build/org.libsdl.abc_speak/app/src/main/assets/
-# COPY android/Android.mk /SDL/build/org.libsdl.abc_speak/app/jni/src
-# COPY android/AndroidManifest.xml /SDL/build/org.libsdl.abc_speak/app/src/main
-# COPY android/res/ /SDL/build/org.libsdl.abc_speak/app/src/main/res/
-# CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug"]
+# Kaldi 
+RUN cd /kaldi/src && \
+    touch /win/lib/libopenblas.so && \
+    CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" \
+    LDCLFAGS='-flto' \
+    ./configure --use-cuda=no \
+        --host=x86_64-windows \
+        --static \
+        --mathlib=OPENBLAS_CLAPACK \
+        --openblas-clapack-root=/win \
+        --fst-root=/win --fst-version=1.8.0 && \
+    make -j 8 depend && \
+    cd /kaldi/src && \
+    sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
+    make -j 8 online2 rnnlm
+
+# Vosk
+RUN cd /vosk-api/src && \
+    git checkout cf67ed6 && \
+    EXTRA_CFLAGS="-g" \
+    sed -i 's/--shared/-shared/g' Makefile && \
+    # sed -i '14s/.*/extern "C" { int MAIN__(){return 0;} }/' vosk_api.cc && \
+    KALDI_ROOT=/kaldi \
+    OPENFST_ROOT=/win \
+    OPENBLAS_ROOT=/win\
+        make -j4 && \
+    cp libvosk.so /usr/local/lib
+
+# Finally build our project
+WORKDIR /abc_speak
+COPY src /abc_speak/src
+COPY assets /abc_speak/assets
+COPY CMakeLists.txt /abc_speak
+
+RUN cp /usr/local/lib/libvosk.so /win/lib/libvosk.dll
+RUN cmake -B build -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
+    cmake --build build
+
