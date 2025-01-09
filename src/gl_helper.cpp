@@ -1,5 +1,4 @@
 #ifdef WIN32
-#define GLEW_STATIC
 #include <GL/glew.h>
 #else
 #define GL_GLEXT_PROTOTYPES
@@ -185,11 +184,11 @@ VertexBufferPtr make_vertex_buffer(const std::vector<glm::vec4> &vertex, const s
 
 VertexBufferPtr make_vertex_buffer(const float *vertex, size_t vertex_bytes, const std::vector<uint32_t> &index) {
     auto cleanup = [](VertexBuffer *v) {
-        LOG("deleting vertex and index buffer: %d(%ld bytes) %d(%ld count)",
+        LOG("deleting vertex and index buffer: %d(%d bytes) %d(%d count)",
             v->vertex,
-            v->vertex_bytes,
+            static_cast<int>(v->vertex_bytes),
             v->index,
-            v->index_count);
+            static_cast<int>(v->index_count));
         glDeleteBuffers(1, &v->vertex);
         glDeleteBuffers(1, &v->index);
     };

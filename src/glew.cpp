@@ -29,6 +29,9 @@
 ** ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 ** THE POSSIBILITY OF SUCH DAMAGE.
 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+#pragma GCC diagnostic ignored "-Waddress"
 
 #ifndef GLEW_INCLUDE
 #include <GL/glew.h>
@@ -28579,3 +28582,5 @@ GLboolean eglewIsSupported (const char* name)
 }
 
 #endif /* _WIN32 */
+
+#pragma GCC diagnostic pop

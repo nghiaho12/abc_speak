@@ -39,6 +39,7 @@ elseif(WIN32)
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+    target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DGLEW_STATIC)
 
     install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
     install(DIRECTORY assets DESTINATION .)
