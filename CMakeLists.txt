@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(abc_speak)
+project(abc_speak VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Wconversion")
@@ -39,6 +39,18 @@ elseif(WIN32)
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
+
+    install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
+    install(DIRECTORY assets DESTINATION .)
+    install(FILES 
+        README.md 
+        LICENSE 
+        /win32/lib/SDL3.dll
+        /win32/lib/libvosk.dll 
+        /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
+        DESTINATION .)
+    set(CPACK_GENERATOR "ZIP")
+    include(CPack)
 else()
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
 endif()

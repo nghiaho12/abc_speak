@@ -120,15 +120,17 @@ COPY --from=build_vosk /win32 /win32
 
 WORKDIR /abc_speak
 COPY src /abc_speak/src
+COPY src/GL /win32/include/GL
 COPY assets /abc_speak/assets
 COPY CMakeLists.txt /abc_speak
-COPY src/GL /win32/include/GL
+COPY README.md /abc_speak
+COPY LICENSE /abc_speak
 
 RUN cmake -B build \
         -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
-    cmake --build build
-
-RUN cp /win32/lib/SDL3.dll /win32/lib/libvosk.dll /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll /abc_speak/build
+    cmake --build build --parallel 6 && \
+    cd build && \
+    make package 
 
 CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
 
