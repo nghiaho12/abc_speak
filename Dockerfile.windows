@@ -130,7 +130,9 @@ RUN cmake -B build \
         -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
     cmake --build build --parallel 6 && \
     cd build && \
-    make package 
+    make package && \
+    mkdir -p release && \
+    mv *.zip release
 
-CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
+CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build/release"]
 
