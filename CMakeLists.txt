@@ -23,13 +23,22 @@ add_executable(${EXECUTABLE_NAME}
     src/color_palette.hpp
 )
 
+file(CREATE_LINK "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets" SYMBOLIC)
+if (NOT EXISTS assets/vosk-model-small-en-us-0.15)
+    message("Downloading vosk model ...")
+    file(DOWNLOAD 
+        https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip 
+        vosk-model-small-en-us-0.15.zip
+        SHOW_PROGRESS)
+    file(ARCHIVE_EXTRACT INPUT vosk-model-small-en-us-0.15.zip DESTINATION assets)
+endif()
+
 if (EMSCRIPTEN)
     set(CMAKE_FIND_ROOT_PATH /wasm)
     set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os") # optimize for size
 
     # embed the assets into the binary
-    file(CREATE_LINK "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets" SYMBOLIC)
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /wasm/lib)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -sFULL_ES3 -sASSERTIONS -g -sALLOW_MEMORY_GROWTH --embed-file assets)
 
@@ -40,6 +49,7 @@ if (EMSCRIPTEN)
         ${CMAKE_BINARY_DIR}/${EXECUTABLE_NAME}.wasm
         ${CMAKE_BINARY_DIR}/${EXECUTABLE_NAME}.js
         DESTINATION .)
+
     set(CPACK_GENERATOR "ZIP")
     include(CPack)
 elseif(WIN32)
@@ -60,10 +70,24 @@ elseif(WIN32)
         /win32/lib/libvosk.dll 
         /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
         DESTINATION .)
+
     set(CPACK_GENERATOR "ZIP")
     include(CPack)
 else()
     # Linux
+    install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
+    install(DIRECTORY assets DESTINATION .)
+    install(FILES 
+        README.md 
+        LICENSE 
+        /usr/local/lib/libSDL3.so
+        /usr/local/lib/libSDL3.so.0
+        /usr/local/lib/libSDL3.so.0.1.7
+        /usr/local/lib/libvosk.so
+        DESTINATION .)
+
+    set(CPACK_GENERATOR "TGZ")
+    include(CPack)
 endif()
 
 set(OpenGL_GL_PREFERENCE LEGACY)

@@ -1,66 +1,49 @@
+# Change to your specific distribution if needed
 FROM debian:12.8 AS base
 
 RUN apt update && \
-    apt install -y g++ git cmake wget unzip pkg-config python3 autoconf libtool \
-    bzip2 unzip wget sox gfortran mingw-w64
-
-ENV AR=x86_64-w64-mingw32-ar
-ENV LD=x86_64-w64-mingw32-ld
-ENV RANLIB=x86_64-w64-mingw32-ranlib
-ENV CC=x86_64-w64-mingw32-gcc-posix 
-ENV CXX=x86_64-w64-mingw32-g++-posix
-ENV RANLIB=x86_64-w64-mingw32-ranlib
-
-COPY cmake/x86_64-w64-mingw32.cmake /
-
-# independent libs are built using multistage to avoid having to rebuild
-# everything if any of the stages changed.
+    apt install -y wget g++ git cmake libx11-dev libxext-dev libgl1-mesa-dev \
+    pkg-config libasound2-dev libpulse-dev binutils coreutils python3 autoconf \
+    libtool
 
 FROM base AS build_sdl
 RUN git clone https://github.com/libsdl-org/SDL.git
 RUN cd SDL && \
     git checkout 2d37903 && \
     cmake -B build \
-        -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake \
         -DSDL_OPENGLES=ON && \
     cmake --build build --parallel 6 && \
-    cmake --install build --prefix=/win32
-RUN cp /SDL/build/SDL3.dll /win32/lib
+    cmake --install build --prefix=/usr/local
 
 FROM base AS build_glm
 RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
 RUN cd /glm && \
     cmake -B build \
-        -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake \
         -DGLM_BUILD_TESTS=OFF \
         -DBUILD_SHARED_LIBS=OFF && \
     cmake --build build && \
-    cmake --install build --prefix=/win32
+    cmake --install build --prefix=/usr/local
 
 FROM base AS build_openblas
 RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
 RUN cd /OpenBLAS && \
     cmake -B build \
-        -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake \
         -DTARGET=HASWELL \
         -DONLY_CBLAS=1 && \
     cmake --build build --parallel 6 && \
-    cmake --install build --prefix=/win32 && \
-    cp ./lapack-netlib/LAPACKE/include/*.h /win32/include
+    cmake --install build --prefix=/usr/local && \
+    cp ./lapack-netlib/LAPACKE/include/*.h /usr/local/include
 
 FROM base AS build_clapack
 RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
 RUN cd clapack && \
-    cmake -B build \
-        -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake \
-        -DCMAKE_SYSTEM_NAME=Generic \
-        -DCMAKE_CROSSCOMPILING=True && \
+    cmake -B build -DCMAKE_SYSTEM_NAME=Generic && \
     cd build && \
     make -j 8 -C F2CLIBS/libf2c && \
     make -j 8 -C BLAS/SRC && \
     make -j 8 -C SRC && \
-    mkdir -p /win32/lib && \
-    find . -name "*.a" | xargs cp -t /win32/lib 
+    mkdir -p /usr/local/lib && \
+    find . -name "*.a" | xargs cp -t /usr/local/lib 
 
 FROM base AS build_openfst
 RUN git clone https://github.com/alphacep/openfst
@@ -69,33 +52,31 @@ RUN git clone https://github.com/alphacep/openfst
     CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING" \
     LDCLFAGS='-flto' \
     ./configure \
-        --prefix=/win32 \
-        --enable-shared \
+        --prefix=/usr/local \
+        --enable-static \
         --with-pic \
         --disable-bin \
         --enable-lookahead-fsts \
-        --enable-ngram-fsts \
-        --host=x86_64-windows && \
+        --enable-ngram-fsts && \
     make -j 8 && \
     make install
 
 FROM base AS build_vosk
-COPY --from=build_openblas /win32 /win32
-COPY --from=build_clapack /win32 /win32
-COPY --from=build_openfst /win32 /win32
+COPY --from=build_openblas /usr/local /usr/local
+COPY --from=build_clapack /usr/local /usr/local
+COPY --from=build_openfst /usr/local /usr/local
 
 RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 RUN cd /kaldi/src && \
-    touch /win32/lib/libopenblas.so && \
-    CXXFLAGS="-O3 -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" \
+    touch /usr/local/lib/libopenblas.so && \
+    CXXFLAGS="-O3 -fPIC -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" \
     LDCLFAGS='-flto' \
     ./configure \
         --use-cuda=no \
-        --host=x86_64-windows \
         --static \
         --mathlib=OPENBLAS_CLAPACK \
-        --openblas-clapack-root=/win32 \
-        --fst-root=/win32 \
+        --openblas-clapack-root=/usr/local \
+        --fst-root=/usr/local \
         --fst-version=1.8.0 && \
     make -j 6 depend && \
     cd /kaldi/src && \
@@ -105,34 +86,29 @@ RUN cd /kaldi/src && \
 RUN git clone https://github.com/alphacep/vosk-api 
 RUN cd /vosk-api/src && \
     git checkout cf67ed6 && \
-    EXTRA_LDFLAGS="-static-libgcc -static-libstdc++" \
-    EXT=dll \
     KALDI_ROOT=/kaldi \
-    OPENFST_ROOT=/win32 \
-    OPENBLAS_ROOT=/win32\
+    OPENFST_ROOT=/usr/local \
+    OPENBLAS_ROOT=/usr/local\
         make -j4 && \
-    cp libvosk.* /win32/lib
+    cp libvosk.* /usr/local/lib
 
 FROM base AS build_project
-COPY --from=build_sdl /win32 /win32
-COPY --from=build_glm /win32 /win32
-COPY --from=build_vosk /win32 /win32
+COPY --from=build_sdl /usr/local /usr/local
+COPY --from=build_glm /usr/local /usr/local
+COPY --from=build_vosk /usr/local /usr/local
 
 WORKDIR /abc_speak
 COPY src /abc_speak/src
-COPY src/GL /win32/include/GL
 COPY assets /abc_speak/assets
 COPY CMakeLists.txt /abc_speak
 COPY README.md /abc_speak
 COPY LICENSE /abc_speak
 
-RUN cmake -B build \
-        -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
+RUN cmake -B build && \
     cmake --build build --parallel 6 && \
     cd build && \
     make package && \
     mkdir -p release && \
-    mv *.zip release
+    mv *.tar.gz release
 
 CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build/release"]
-
