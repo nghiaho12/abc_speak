@@ -1,8 +1,8 @@
-FROM debian:12.8
-
+FROM debian:12.8 AS base
 
 RUN apt update && \
-    apt install -y g++ git cmake python3 xz-utils autoconf libtool bzip2 unzip wget sox gfortran vim
+    apt install -y g++ git cmake python3 xz-utils autoconf libtool \
+    bzip2 unzip wget sox gfortran vim
 
 ENV EMSDK_VER=3.1.73
 
@@ -13,13 +13,32 @@ RUN cd emsdk && \
 SHELL ["/bin/bash", "-c"]
 RUN echo '/emsdk/emsdk activate && source /emsdk/emsdk_env.sh' >> /root/.bashrc 
 
-WORKDIR /kaldi_root
+# independent libs are built using multistage to avoid having to rebuild
+# everything if any of the stages changed.
 
-# OpenBLAS
-RUN git clone -b v0.3.28 --single-branch https://github.com/xianyi/OpenBLAS 
+FROM base AS build_sdl
+RUN git clone -b preview-3.1.6 --depth 1 https://github.com/libsdl-org/SDL.git
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
-    cd /kaldi_root/OpenBLAS && \
+    cd /SDL && \
+    emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release  && \
+    cmake --build build && \
+    cmake --install build --prefix=/wasm
+
+FROM base AS build_glm
+RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
+    cd /glm && \
+    emcmake cmake -B build -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF && \
+    cmake --build build && \
+    cmake --install build --prefix=/wasm
+
+FROM base AS build_openblas
+RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
+    cd /OpenBLAS && \
     sed -i 's/\(.*\.\/getarch\)/\tnode \1/' Makefile.prebuild && \
     sed -i '75s/.*//' Makefile.prebuild && \ 
     sed -i '18s/.*//' Makefile.riscv64 && \
@@ -27,98 +46,97 @@ RUN /emsdk/emsdk activate $EMSDK_VER && \
     sed -i '205s/.*//' Makefile.system && \
     sed -i '221s/-march=rv64imafdcv//' driver/others/Makefile && \
     emmake make ONLY_CBLAS=1 TARGET=RISCV64_GENERIC USE_LOCKING=1 USE_THREAD=0 NUM_THREADS=1 NO_SHARED=1 -j4 && \
-    emmake make PREFIX=/kaldi_root install TARGET=RISCV64_GENERIC NO_SHARED=1 
+    emmake make PREFIX=/wasm install TARGET=RISCV64_GENERIC NO_SHARED=1 
 
-# CLAPACK
+FROM base AS build_clapack
 RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack 
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
     mkdir -p clapack/BUILD && \
     cd clapack/BUILD && \
-    emcmake cmake -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_SYSTEM_NAME=Generic .. \
-    && emmake make -j 4 -C F2CLIBS \ 
-    && emmake make -j 4 -C BLAS \ 
-    && emmake make -j 4 -C SRC \
-    && find . -name "*.a" | xargs cp -t /kaldi_root/lib 
+    emcmake cmake -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_SYSTEM_NAME=Generic .. && \
+    emmake make -j 4 -C F2CLIBS && \ 
+    emmake make -j 4 -C BLAS && \ 
+    emmake make -j 4 -C SRC && \
+    mkdir -p /wasm/lib && \
+    find . -name "*.a" | xargs cp -t /wasm/lib 
 
-# OpenFST
+FROM base AS build_openfst
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
     git clone https://github.com/alphacep/openfst && \
     cd openfst && \
     autoreconf -i && \
     export CXXFLAGS="-DFST_NO_DYNAMIC_LINKING"  && \
-    emconfigure ./configure --prefix=/kaldi_root --enable-static --disable-bin --enable-lookahead-fsts --enable-ngram-fsts && \
+    emconfigure ./configure \
+        --prefix=/wasm \
+        --enable-static \
+        --disable-bin \
+        --enable-lookahead-fsts \
+        --enable-ngram-fsts && \
     emmake make -j 8 && \
     emmake make install
 
-# Kaldi - vosk-android branch seems to work
+FROM base AS build_vosk
+COPY --from=build_openblas /wasm /wasm
+COPY --from=build_clapack /wasm /wasm
+COPY --from=build_openfst /wasm /wasm
+
 RUN git clone -b vosk-android --single-branch https://github.com/alphacep/kaldi
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
-    cd /kaldi_root/kaldi/src && \
+    cd /kaldi/src && \
     sed -i 's/g_num_threads = 8/g_num_threads = 0/g' util/kaldi-thread.cc && \
-    touch /kaldi_root/lib/libopenblas.so && \
+    touch /wasm/lib/libopenblas.so && \
     export CXXFLAGS="-msimd128 -O3 -DFST_NO_DYNAMIC_LINKING -D__EMSCRIPTEN__" && \
     emconfigure ./configure \
         --use-cuda=no \
         --static \
         --mathlib=OPENBLAS_CLAPACK \
-        --openblas-clapack-root=/kaldi_root \
-        --fst-root=/kaldi_root \
+        --openblas-clapack-root=/wasm \
+        --fst-root=/wasm \
         --fst-version=1.8.0 && \
     emmake make -j 8 depend && \
-    cd /kaldi_root/kaldi/src && \
+    cd /kaldi/src && \
     sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
     emmake make -j 8 online2 rnnlm
 
-# Vosk API
-RUN git clone https://github.com/alphacep/vosk-api && \
-    cd vosk-api && \
-    git checkout cf67ed6 
-
+RUN git clone https://github.com/alphacep/vosk-api
 RUN /emsdk/emsdk activate $EMSDK_VER && \
     source /emsdk/emsdk_env.sh && \
-    cd /kaldi_root/vosk-api/src && \
+    cd vosk-api/src && \
+    git checkout cf67ed6 && \
     sed -i 's/--shared/-shared/g' Makefile && \
     sed -i '14s/.*/extern "C" { int MAIN__(){return 0;} }/' vosk_api.cc && \
-    KALDI_ROOT=/kaldi_root/kaldi \
-    OPENFST_ROOT=/kaldi_root \
-    OPENBLAS_ROOT=/kaldi_root \
+    KALDI_ROOT=/kaldi \
+    OPENFST_ROOT=/wasm \
+    OPENBLAS_ROOT=/wasm \
         emmake make -j4 
     
-WORKDIR /
+RUN cp /vosk-api/src/libvosk.so /wasm/lib
 
-# SDL
-RUN git clone -b preview-3.1.6 --depth 1 https://github.com/libsdl-org/SDL.git
-RUN /emsdk/emsdk activate $EMSDK_VER && \
-    source /emsdk/emsdk_env.sh && \
-    cd /SDL && \
-    emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release  && \
-    VERBOSE=1 cmake --build build && \
-    cmake --install build
-
-# GLM
-RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
-
-RUN /emsdk/emsdk activate $EMSDK_VER && \
-    source /emsdk/emsdk_env.sh && \
-    cd /glm && \
-    emcmake cmake -B build -DGLM_BUILD_TESTS=OFF -DBUILD_SHARED_LIBS=OFF && \
-    cmake --build build && \
-    cmake --install build
+FROM base AS build_project
+COPY --from=build_sdl /wasm /wasm
+COPY --from=build_glm /wasm /wasm
+COPY --from=build_vosk /wasm /wasm
 
 # Finally our project
 WORKDIR /abc_speak
-COPY CMakeLists.txt /abc_speak
 COPY src/ /abc_speak/src/
 COPY assets/ /abc_speak/assets/
+COPY CMakeLists.txt /abc_speak
+COPY README.md /abc_speak
+COPY LICENSE /abc_speak
+COPY wasm/index.html /abc_speak
 
-# RUN /emsdk/emsdk activate $EMSDK_VER && \
-#     source /emsdk/emsdk_env.sh && \
-#     emcmake cmake -B build && \
-#     VERBOSE=1 cmake --build build 
-#
-# COPY wasm/index.html /abc_speak/build
-#
-# CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build"]
+RUN /emsdk/emsdk activate $EMSDK_VER && \
+    source /emsdk/emsdk_env.sh && \
+    emcmake cmake -B build && \
+    cmake --build build --parallel 6 && \
+    cd build && \
+    make package && \
+    mkdir -p release && \
+    mv *.zip release
+
+
+CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/abc_speak/build/release"]

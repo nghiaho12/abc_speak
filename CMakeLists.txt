@@ -6,10 +6,6 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Wconversion")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for nvim LSP support
 
 set(EXECUTABLE_NAME ${PROJECT_NAME})
-set(OpenGL_GL_PREFERENCE LEGACY)
-
-find_package(SDL3 REQUIRED)
-find_package(OpenGL REQUIRED)
 
 add_executable(${EXECUTABLE_NAME}
     src/main.cpp
@@ -27,19 +23,33 @@ add_executable(${EXECUTABLE_NAME}
     src/color_palette.hpp
 )
 
-if (CMAKE_SYSTEM_NAME MATCHES Emscripten)
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} /kaldi_root/vosk-api/src/libvosk.so)
+if (EMSCRIPTEN)
+    set(CMAKE_FIND_ROOT_PATH /wasm)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os") # optimize for size
+
+    # embed the assets into the binary
+    file(CREATE_LINK "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets" SYMBOLIC)
+    target_link_directories(${EXECUTABLE_NAME} PRIVATE /wasm/lib)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -sFULL_ES3 -sASSERTIONS -g -sALLOW_MEMORY_GROWTH --embed-file assets)
 
-    file(CREATE_LINK "${PROJECT_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets" SYMBOLIC)
-	set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os") # optimize for size
+    install(FILES 
+        README.md 
+        LICENSE 
+        index.html 
+        ${CMAKE_BINARY_DIR}/${EXECUTABLE_NAME}.wasm
+        ${CMAKE_BINARY_DIR}/${EXECUTABLE_NAME}.js
+        DESTINATION .)
+    set(CPACK_GENERATOR "ZIP")
+    include(CPack)
 elseif(WIN32)
+    # Windows OpenGL needs GLEW to access modern GL features
     target_sources(${EXECUTABLE_NAME} PRIVATE src/glew.cpp src/GL/glew.h)
-    target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
-    target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
     target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DGLEW_STATIC)
+
+    target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
+    # static link results in less DLL to distribute
+    target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
 
     install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
     install(DIRECTORY assets DESTINATION .)
@@ -53,5 +63,11 @@ elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
     include(CPack)
 else()
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)
+    # Linux
 endif()
+
+set(OpenGL_GL_PREFERENCE LEGACY)
+find_package(OpenGL REQUIRED)
+find_package(SDL3 REQUIRED)
+
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL3::SDL3 ${OPENGL_LIBRARIES} vosk)

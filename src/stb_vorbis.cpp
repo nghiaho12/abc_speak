@@ -902,14 +902,14 @@ static int error(vorb *f, enum STBVorbisError e) {
 // alloca(); otherwise, provide a temp buffer and it will
 // allocate out of those.
 
-#define array_size_required(count, size) (count * (sizeof(void *) + (size)))
+#define array_size_required(count, size) (static_cast<size_t>(count) * (sizeof(void *) + (size)))
 
-#define temp_alloc(f, size) (f->alloc.alloc_buffer ? setup_temp_malloc(f, static_cast<int>(size)) : alloca(size))
+#define temp_alloc(f, size) (f->alloc.alloc_buffer ? setup_temp_malloc(f, static_cast<int>(size)) : alloca(static_cast<size_t>(size)))
 #define temp_free(f, p) (void)0
 #define temp_alloc_save(f) ((f)->temp_offset)
 #define temp_alloc_restore(f, p) ((f)->temp_offset = (p))
 
-#define temp_block_array(f, count, size) make_block_array(temp_alloc(f, array_size_required(count, size)), count, size)
+#define temp_block_array(f, count, size) make_block_array(temp_alloc(f, array_size_required(count, size)), static_cast<int>(count), static_cast<int>(size))
 
 // given a sufficiently large block of memory, make an array of pointers to subblocks of it
 static void *make_block_array(void *mem, int count, int size) {
@@ -1377,9 +1377,9 @@ static int set_file_offset(stb_vorbis *f, unsigned int loc) {
     } else {
         loc += f->f_start;
     }
-    if (!fseek(f->f, loc, SEEK_SET)) return 1;
+    if (!fseek(f->f, static_cast<long>(loc), SEEK_SET)) return 1;
     f->eof = 1;
-    fseek(f->f, f->f_start, SEEK_END);
+    fseek(f->f, static_cast<long>(f->f_start), SEEK_END);
     return 0;
 #endif
 }
@@ -2048,7 +2048,7 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
     int part_read = n_read / static_cast<int>(r->part_size);
     int temp_alloc_point = temp_alloc_save(f);
 #ifndef STB_VORBIS_DIVIDES_IN_RESIDUE
-    uint8 ***part_classdata = (uint8 ***)temp_block_array(f, f->channels, part_read * (sizeof(**part_classdata)));
+    uint8 ***part_classdata = (uint8 ***)temp_block_array(f, f->channels, static_cast<size_t>(part_read) * (sizeof(**part_classdata)));
 #else
     int **classifications = (int **)temp_block_array(f, f->channels, part_read * sizeof(**classifications));
 #endif
@@ -4440,7 +4440,7 @@ unsigned int stb_vorbis_get_file_offset(stb_vorbis *f) {
 #endif
     if (USE_MEMORY(f)) return (unsigned int)(f->stream - f->stream_start);
 #ifndef STB_VORBIS_NO_STDIO
-    return (unsigned int)(ftell(f->f) - f->f_start);
+    return (unsigned int)(static_cast<unsigned long>(ftell(f->f)) - f->f_start);
 #endif
 }
 
@@ -4935,8 +4935,8 @@ stb_vorbis *stb_vorbis_open_file(FILE *file, int close_on_free, int *error, cons
     unsigned int len, start;
     start = (unsigned int)ftell(file);
     fseek(file, 0, SEEK_END);
-    len = (unsigned int)(ftell(file) - start);
-    fseek(file, start, SEEK_SET);
+    len = (unsigned int)(static_cast<unsigned int>(ftell(file)) - start);
+    fseek(file, static_cast<long>(start), SEEK_SET);
     return stb_vorbis_open_file_section(file, close_on_free, error, alloc, len);
 }
 
