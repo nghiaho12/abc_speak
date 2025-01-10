@@ -1,4 +1,4 @@
-An app I wrote to help my kid to learn the ABC alphabet. 
+An app I wrote to help my kid learn the alphabet. 
 When the spoken letter is recognized (via mic) it will get highlighted.
 The app recognizes the NATO phonetic alphabet (https://en.wikipedia.org/wiki/NATO_phonetic_alphabet)
 
