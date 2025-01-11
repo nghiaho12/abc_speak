@@ -1,12 +1,14 @@
 An app I wrote to help my kid learn the alphabet. 
 When the spoken letter is recognized (via mic) it will get highlighted.
-The app recognizes the NATO phonetic alphabet (https://en.wikipedia.org/wiki/NATO_phonetic_alphabet)
+The app also recognizes the NATO phonetic alphabet (https://en.wikipedia.org/wiki/NATO_phonetic_alphabet)
 
 For best results pronounce each letter longer than you normally would. For example, say "Aaaaa".
 
 Keyboard shorcuts
-- ESC to quit (only applies to desktop app)
-- F to toggle fullscreen (applies to dekstop and web app)
+- ESC to quit (only applies to the desktop app)
+- F to toggle fullscreen (applies to the dekstop and web app)
+
+Vosk (https://alphacephei.com/vosk/) is used for speech recognition. 
 
 ![screenshot](screenshot.png)
 
@@ -19,10 +21,10 @@ This repo uses git LFS for the assets. Install it before cloning, e.g. ```sudo a
 You'll also need to have Docker installed, e.g. ```sudo apt install docker-ce```.
 
 ## Linux
-The default Linux target is Debian 12.8. Edit Dockerfile.linux to match your distro if you run into problems with binary.
+The default Linux target is Debian 12.8. Edit Dockerfile.linux to match your distro if you run into problems with the binary.
 
 ```
-docker build -f Dockerfile.windows -t abc_speak:linux .
+docker build -f Dockerfile.linux -t abc_speak:linux .
 docker run --rm -it --network=host abc_speak:linux
 ```
 Go to http://localhost:8000 to download the release package.
@@ -31,6 +33,15 @@ The tarball comes with SDL3 and libvosk shared library bundled. Run the binary b
 ```
 LD_LIBRARY_PATH=. ./abc_speak
 ```
+
+## Windows
+```
+docker build -f Dockerfile.windows -t abc_speak:windows .
+docker run --rm --network=host abc_speak:windows
+```
+
+Point your browser to http://localhost:8000 to download the release package.
+
 ## Android
 The APK is targeted at Android 9 (API Level 28) and above.
 
