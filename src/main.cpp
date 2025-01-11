@@ -51,7 +51,7 @@ constexpr glm::vec4 FONT_OUTLINE = Color::white;
 constexpr float FONT_OUTLINE_FACTOR = 0.1f;
 constexpr float FONT_WIDTH = 0.15f;
 
-constexpr int AUDIO_RATE = 44100;
+constexpr int AUDIO_RATE = 16000;
 
 using VoskModelPtr = std::unique_ptr<VoskModel, void (*)(VoskModel *)>;
 using VoskRecognizerPtr = std::unique_ptr<VoskRecognizer, void (*)(VoskRecognizer *)>;
