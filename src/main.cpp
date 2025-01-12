@@ -8,13 +8,13 @@
 #define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3/SDL_timer.h>
-#include <SDL3/SDL_system.h>
 #include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_system.h>
+#include <SDL3/SDL_timer.h>
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <glm/glm.hpp>
@@ -182,7 +182,7 @@ void record_callback(void *userdata, SDL_AudioStream *stream, int additional_amo
         // if the final word contains multiple words pick the letter of the last word
         std::reverse(word.begin(), word.end());
 
-        for (auto ch: word) {
+        for (auto ch : word) {
             if (ch == ' ') {
                 break;
             }
@@ -225,7 +225,7 @@ bool init_vosk_android() {
 #ifdef __ANDROID__
     std::string vosk_path = std::string(SDL_GetAndroidExternalStoragePath()) + "/" + VOSK_MODEL;
 
-    for (auto subdir: {"conf", "am", "graph/phones", "ivector"}) {
+    for (auto subdir : {"conf", "am", "graph/phones", "ivector"}) {
         SDL_PathInfo info;
         std::string path = vosk_path + "/" + subdir;
 
@@ -255,7 +255,7 @@ bool init_vosk_android() {
         "ivector/final.ie",
     };
 
-    for (auto f: files) {
+    for (auto f : files) {
         std::string in_path = std::string(VOSK_MODEL) + "/" + f;
         std::string out_path = vosk_path + "/" + f;
 
@@ -284,50 +284,22 @@ bool init_vosk_android() {
 }
 
 bool init_vosk_model(AppState &as, const std::string &model_path) {
-    as.model =
-        VoskModelPtr(vosk_model_new((model_path + VOSK_MODEL).c_str()), [](VoskModel *model) {
-                LOG("freeing vosk model");
-                vosk_model_free(model);
-                });
+    as.model = VoskModelPtr(vosk_model_new((model_path + VOSK_MODEL).c_str()), [](VoskModel *model) {
+        LOG("freeing vosk model");
+        vosk_model_free(model);
+    });
 
     if (!as.model) {
         LOG("can't load model at: %s", (model_path + VOSK_MODEL).c_str());
         return false;
     }
 
-    std::vector<std::string> words;
-
-    for (int i=0; i < 26; i++) {
-        char ch[] = {static_cast<char>('a' + i)};
-        words.push_back(ch);
-    }
-
-    words.push_back("alfa");
-    words.push_back("bravo");
-    words.push_back("charlie");
-    words.push_back("delta");
-    words.push_back("echo");
-    words.push_back("foxtrot");
-    words.push_back("golf");
-    words.push_back("hotel");
-    words.push_back("india");
-    words.push_back("juliet");
-    words.push_back("kilo");
-    words.push_back("lima");
-    words.push_back("mike");
-    words.push_back("november");
-    words.push_back("oscar");
-    words.push_back("papa");
-    words.push_back("quebec");
-    words.push_back("romeo");
-    words.push_back("sierra");
-    words.push_back("tango");
-    words.push_back("uniform");
-    words.push_back("victor");
-    words.push_back("whiskey");
-    words.push_back("xray");
-    words.push_back("yankee");
-    words.push_back("zulu");
+    const std::vector<std::string> words{
+        "a",      "b",     "c",       "d",      "e",       "f",     "g",        "h",     "i",    "j",       "k",
+        "l",      "m",     "n",       "o",      "p",       "q",     "r",        "s",     "t",    "u",       "v",
+        "w",      "x",     "y",       "z",      "alfa",    "bravo", "charlie",  "delta", "echo", "foxtrot", "golf",
+        "hotel",  "india", "juliet",  "kilo",   "lima",    "mike",  "november", "oscar", "papa", "quebec",  "romeo",
+        "sierra", "tango", "uniform", "victor", "whiskey", "xray",  "yankee",   "zulu"};
 
     std::string grammar("[");
 
@@ -339,10 +311,10 @@ bool init_vosk_model(AppState &as, const std::string &model_path) {
     grammar.append("\"[unk]\"]");
 
     as.recognizer = VoskRecognizerPtr(vosk_recognizer_new_grm(as.model.get(), AUDIO_RATE, grammar.c_str()),
-            [](VoskRecognizer *recognizer) {
-            LOG("freeing vosk recognizer");
-            vosk_recognizer_free(recognizer);
-            });
+                                      [](VoskRecognizer *recognizer) {
+                                          LOG("freeing vosk recognizer");
+                                          vosk_recognizer_free(recognizer);
+                                      });
 
     vosk_recognizer_set_endpointer_mode(as.recognizer.get(), VOSK_EP_ANSWER_SHORT);
 
@@ -398,8 +370,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     // Android
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
-    if (!SDL_CreateWindowAndRenderer(
-            "ABC Speak", 640, 480, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS, &as->window, &as->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("ABC Speak",
+                                     640,
+                                     480,
+                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS,
+                                     &as->window,
+                                     &as->renderer)) {
         LOG("SDL_CreateWindowAndRenderer failed");
         return SDL_APP_FAILURE;
     }
@@ -494,7 +470,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
                 auto flags = SDL_GetWindowFlags(as.window);
                 if (flags & SDL_WINDOW_FULLSCREEN) {
                     SDL_SetWindowFullscreen(as.window, false);
-                } else { 
+                } else {
                     SDL_SetWindowFullscreen(as.window, true);
                 }
             }
@@ -592,9 +568,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
             float k = static_cast<float>(c + a * std::sin(2 * M_PI * f * t));
 
-            glm::vec4 col = color[i % color.size()] * k; 
-            col[3] = 1.f; // alpha
-                          
+            glm::vec4 col = color[i % color.size()] * k;
+            col[3] = 1.f;  // alpha
+
             as.font_shader.set_fg(col);
         } else {
             as.font_shader.set_font_width(FONT_WIDTH);

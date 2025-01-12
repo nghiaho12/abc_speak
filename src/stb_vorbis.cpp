@@ -904,12 +904,14 @@ static int error(vorb *f, enum STBVorbisError e) {
 
 #define array_size_required(count, size) (static_cast<size_t>(count) * (sizeof(void *) + (size)))
 
-#define temp_alloc(f, size) (f->alloc.alloc_buffer ? setup_temp_malloc(f, static_cast<int>(size)) : alloca(static_cast<size_t>(size)))
+#define temp_alloc(f, size) \
+    (f->alloc.alloc_buffer ? setup_temp_malloc(f, static_cast<int>(size)) : alloca(static_cast<size_t>(size)))
 #define temp_free(f, p) (void)0
 #define temp_alloc_save(f) ((f)->temp_offset)
 #define temp_alloc_restore(f, p) ((f)->temp_offset = (p))
 
-#define temp_block_array(f, count, size) make_block_array(temp_alloc(f, array_size_required(count, size)), static_cast<int>(count), static_cast<int>(size))
+#define temp_block_array(f, count, size) \
+    make_block_array(temp_alloc(f, array_size_required(count, size)), static_cast<int>(count), static_cast<int>(size))
 
 // given a sufficiently large block of memory, make an array of pointers to subblocks of it
 static void *make_block_array(void *mem, int count, int size) {
@@ -2048,7 +2050,8 @@ static void decode_residue(vorb *f, float *residue_buffers[], int ch, int n, int
     int part_read = n_read / static_cast<int>(r->part_size);
     int temp_alloc_point = temp_alloc_save(f);
 #ifndef STB_VORBIS_DIVIDES_IN_RESIDUE
-    uint8 ***part_classdata = (uint8 ***)temp_block_array(f, f->channels, static_cast<size_t>(part_read) * (sizeof(**part_classdata)));
+    uint8 ***part_classdata =
+        (uint8 ***)temp_block_array(f, f->channels, static_cast<size_t>(part_read) * (sizeof(**part_classdata)));
 #else
     int **classifications = (int **)temp_block_array(f, f->channels, part_read * sizeof(**classifications));
 #endif

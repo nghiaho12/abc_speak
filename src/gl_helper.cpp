@@ -5,9 +5,9 @@
 #include <SDL3/SDL_opengles2.h>
 #endif
 
-#include <glm/gtc/type_ptr.hpp>
 #include <SDL3/SDL_surface.h>
 
+#include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <vector>
 
@@ -71,11 +71,11 @@ void enable_gl_debug_callback() {
 #endif
 }
 
-void VertexArray::use() { 
+void VertexArray::use() {
 #ifdef WIN32
-    glBindVertexArray(vao); 
+    glBindVertexArray(vao);
 #else
-    glBindVertexArrayOES(vao); 
+    glBindVertexArrayOES(vao);
 #endif
 }
 
@@ -93,7 +93,7 @@ VertexArrayPtr make_vertex_array() {
 
 #ifdef WIN32
     glGenVertexArrays(1, &v->vao);
-#else 
+#else
     glGenVertexArraysOES(1, &v->vao);
 #endif
 

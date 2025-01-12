@@ -37,7 +37,7 @@ LD_LIBRARY_PATH=. ./abc_speak
 ## Windows
 ```
 docker build -f Dockerfile.windows -t abc_speak:windows .
-docker run --rm --network=host abc_speak:windows
+docker run --rm -it --network=host abc_speak:windows
 ```
 
 Point your browser to http://localhost:8000 to download the release package.
@@ -47,7 +47,7 @@ The APK is targeted at Android 9 (API Level 28) and above.
 
 ```
 docker build -f Dockerfile.android -t abc_speak:android .
-docker run --rm --network=host abc_speak:android
+docker run --rm -it --network=host abc_speak:android
 ```
 
 Point your Android web browser to http://localhost:8000 to download the APK.
@@ -55,7 +55,7 @@ Point your Android web browser to http://localhost:8000 to download the APK.
 ## Web
 ```
 docker build -f Dockerfile.wasm -t abc_speak:wasm .
-docker run --rm --network=host abc_speak:wasm
+docker run --rm -it --network=host abc_speak:wasm
 ```
 
 Point your browser to http://localhost:8000 to download the release package.

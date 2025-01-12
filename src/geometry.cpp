@@ -4,11 +4,10 @@
 #include <SDL3/SDL_opengles2.h>
 #endif
 
-#include "geometry.hpp"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "geometry.hpp"
 #include "gl_helper.hpp"
 
 namespace {
