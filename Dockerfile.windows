@@ -25,7 +25,6 @@ RUN cd SDL && \
         -DSDL_OPENGLES=ON && \
     cmake --build build --parallel 6 && \
     cmake --install build --prefix=/win32
-RUN cp /SDL/build/SDL3.dll /win32/lib
 
 FROM base AS build_glm
 RUN git clone -b 1.0.1 --depth 1 https://github.com/g-truc/glm.git
@@ -115,9 +114,22 @@ RUN cd /vosk-api/src && \
 
 FROM base AS build_project
 COPY --from=build_sdl /win32 /win32
+COPY --from=build_sdl /SDL/src/video/khronos/GLES2 /win32/include/GLES2
 COPY --from=build_glm /win32 /win32
 COPY --from=build_vosk /win32 /win32
 
+# OpenGL ES2 support for Windows
+RUN wget https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-angleproject-2.1.r21358.2e285bb5-8-any.pkg.tar.zst 
+RUN apt install -y zstd libz-mingw-w64
+RUN tar --zstd -xvf mingw-w64-x86_64-angleproject-2.1.r21358.2e285bb5-8-any.pkg.tar.zst && \
+    cd mingw64 && \
+    cp -rf * /win32
+
+# The angle project lib needs DLLs from MSYS2. 
+RUN cd /tmp && \
+    wget https://mirror.msys2.org/mingw/mingw64/mingw-w64-x86_64-gcc-libs-14.2.0-2-any.pkg.tar.zst && \
+    tar --zstd -xvf mingw-w64-x86_64-gcc-libs-14.2.0-2-any.pkg.tar.zst
+    
 WORKDIR /abc_speak
 COPY src /abc_speak/src
 COPY src/GL /win32/include/GL
@@ -128,7 +140,7 @@ COPY LICENSE /abc_speak
 
 RUN cmake -B build \
         -DCMAKE_TOOLCHAIN_FILE=/x86_64-w64-mingw32.cmake && \
-    cmake --build build --parallel 6 && \
+    VERBOSE=1 cmake --build build --parallel 6 && \
     cd build && \
     make package && \
     mkdir -p release && \

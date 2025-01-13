@@ -1,17 +1,13 @@
-#ifdef WIN32
-#include <GL/glew.h>
-#else
 #define GL_GLEXT_PROTOTYPES
-#include <SDL3/SDL_opengles2.h>
-#endif
+#include "gl_helper.hpp"
 
+#include <SDL3/SDL_opengles2.h>
 #include <SDL3/SDL_surface.h>
 
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <vector>
 
-#include "gl_helper.hpp"
 #include "log.hpp"
 
 namespace {
@@ -71,31 +67,17 @@ void enable_gl_debug_callback() {
 #endif
 }
 
-void VertexArray::use() {
-#ifdef WIN32
-    glBindVertexArray(vao);
-#else
-    glBindVertexArrayOES(vao);
-#endif
-}
+void VertexArray::use() { glBindVertexArrayOES(vao); }
 
 VertexArrayPtr make_vertex_array() {
     auto cleanup = [](VertexArray *v) {
         LOG("deleting vertex array: %d", v->vao);
-#ifdef WIN32
-        glDeleteVertexArrays(1, &v->vao);
-#else
         glDeleteVertexArraysOES(1, &v->vao);
-#endif
     };
 
     VertexArrayPtr v(new VertexArray, cleanup);
 
-#ifdef WIN32
-    glGenVertexArrays(1, &v->vao);
-#else
     glGenVertexArraysOES(1, &v->vao);
-#endif
 
     return v;
 }

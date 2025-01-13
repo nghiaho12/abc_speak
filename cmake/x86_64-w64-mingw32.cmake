@@ -1,10 +1,10 @@
 SET(CMAKE_SYSTEM_NAME Windows)
 
-SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
-SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+SET(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc-posix)
+SET(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++-posix)
 SET(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
-SET(CMAKE_AR x86_64-w64-mingw32-ar)
-SET(CMAKE_RANLIB x86_64-w64-mingw32-ranlib)
+SET(CMAKE_AR x86_64-w64-mingw32-gcc-ar-posix)
+SET(CMAKE_RANLIB x86_64-w64-mingw32-gcc-ranlib-posix)
 
 SET(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32 /win32)
 

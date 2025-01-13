@@ -53,12 +53,8 @@ if (EMSCRIPTEN)
     set(CPACK_GENERATOR "ZIP")
     include(CPack)
 elseif(WIN32)
-    # Windows OpenGL needs GLEW to access modern GL features
-    target_sources(${EXECUTABLE_NAME} PRIVATE src/glew.cpp src/GL/glew.h)
-    target_compile_definitions(${EXECUTABLE_NAME} PRIVATE -DGLEW_STATIC)
-
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
-    # static link results in less DLL to distribute
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE GLESv2)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
 
     install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
@@ -66,9 +62,14 @@ elseif(WIN32)
     install(FILES 
         README.md 
         LICENSE 
-        /win32/lib/SDL3.dll
+        /win32/bin/SDL3.dll
+        /win32/bin/libGLESv2.dll
+        /win32/bin/libEGL.dll
         /win32/lib/libvosk.dll 
+        /usr/x86_64-w64-mingw32/lib/zlib1.dll
         /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
+        /tmp/mingw64/bin/libstdc++-6.dll # libGLESv2.dll needs this specific version
+        /tmp/mingw64/bin/libgcc_s_seh-1.dll # libGLESv2.dll 
         DESTINATION .)
 
     set(CPACK_GENERATOR "ZIP")

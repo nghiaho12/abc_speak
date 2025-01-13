@@ -1,13 +1,10 @@
-#ifdef WIN32
-#include <GL/glew.h>
-#else
+#include "geometry.hpp"
+
 #include <SDL3/SDL_opengles2.h>
-#endif
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "geometry.hpp"
 #include "gl_helper.hpp"
 
 namespace {

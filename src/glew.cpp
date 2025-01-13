@@ -83,9 +83,9 @@ static void *(*regalGetProcAddress)(const GLchar *) = glGetProcAddressREGAL;
 #include <stdio.h>
 #include <stdlib.h>
 
-void* dlGetProcAddress(const GLubyte* name) {
-    static void* h = NULL;
-    static void* gpa;
+void *dlGetProcAddress(const GLubyte *name) {
+    static void *h = NULL;
+    static void *gpa;
 
     if (h == NULL) {
         if ((h = dlopen(NULL, RTLD_LAZY | RTLD_LOCAL)) == NULL) return NULL;
@@ -93,9 +93,9 @@ void* dlGetProcAddress(const GLubyte* name) {
     }
 
     if (gpa != NULL)
-        return ((void* (*)(const GLubyte*))gpa)(name);
+        return ((void *(*)(const GLubyte *))gpa)(name);
     else
-        return dlsym(h, (const char*)name);
+        return dlsym(h, (const char *)name);
 }
 #endif /* __sgi || __sun || GLEW_APPLE_GLX */
 
@@ -3242,9 +3242,9 @@ PFNGLREPLACEMENTCODEUICOLOR4UBVERTEX3FVSUNPROC __glewReplacementCodeuiColor4ubVe
 PFNGLREPLACEMENTCODEUINORMAL3FVERTEX3FSUNPROC __glewReplacementCodeuiNormal3fVertex3fSUN = NULL;
 PFNGLREPLACEMENTCODEUINORMAL3FVERTEX3FVSUNPROC __glewReplacementCodeuiNormal3fVertex3fvSUN = NULL;
 PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FSUNPROC
-    __glewReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN = NULL;
+__glewReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN = NULL;
 PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC
-    __glewReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN = NULL;
+__glewReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN = NULL;
 PFNGLREPLACEMENTCODEUITEXCOORD2FNORMAL3FVERTEX3FSUNPROC __glewReplacementCodeuiTexCoord2fNormal3fVertex3fSUN = NULL;
 PFNGLREPLACEMENTCODEUITEXCOORD2FNORMAL3FVERTEX3FVSUNPROC __glewReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN = NULL;
 PFNGLREPLACEMENTCODEUITEXCOORD2FVERTEX3FSUNPROC __glewReplacementCodeuiTexCoord2fVertex3fSUN = NULL;
@@ -23519,7 +23519,7 @@ static GLboolean _glewInit_WGL_3DL_stereo_control() {
     GLboolean r = GL_FALSE;
 
     r = ((wglSetStereoEmitterState3DL = (PFNWGLSETSTEREOEMITTERSTATE3DLPROC)glewGetProcAddress(
-              (const GLubyte*)"wglSetStereoEmitterState3DL")) == NULL) ||
+              (const GLubyte *)"wglSetStereoEmitterState3DL")) == NULL) ||
         r;
 
     return r;
@@ -23533,30 +23533,30 @@ static GLboolean _glewInit_WGL_AMD_gpu_association() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBlitContextFramebufferAMD = (PFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglBlitContextFramebufferAMD")) == NULL) ||
+              (const GLubyte *)"wglBlitContextFramebufferAMD")) == NULL) ||
         r;
     r = ((wglCreateAssociatedContextAMD = (PFNWGLCREATEASSOCIATEDCONTEXTAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglCreateAssociatedContextAMD")) == NULL) ||
+              (const GLubyte *)"wglCreateAssociatedContextAMD")) == NULL) ||
         r;
     r = ((wglCreateAssociatedContextAttribsAMD = (PFNWGLCREATEASSOCIATEDCONTEXTATTRIBSAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglCreateAssociatedContextAttribsAMD")) == NULL) ||
+              (const GLubyte *)"wglCreateAssociatedContextAttribsAMD")) == NULL) ||
         r;
     r = ((wglDeleteAssociatedContextAMD = (PFNWGLDELETEASSOCIATEDCONTEXTAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglDeleteAssociatedContextAMD")) == NULL) ||
+              (const GLubyte *)"wglDeleteAssociatedContextAMD")) == NULL) ||
         r;
     r = ((wglGetContextGPUIDAMD =
-              (PFNWGLGETCONTEXTGPUIDAMDPROC)glewGetProcAddress((const GLubyte*)"wglGetContextGPUIDAMD")) == NULL) ||
+              (PFNWGLGETCONTEXTGPUIDAMDPROC)glewGetProcAddress((const GLubyte *)"wglGetContextGPUIDAMD")) == NULL) ||
         r;
     r = ((wglGetCurrentAssociatedContextAMD = (PFNWGLGETCURRENTASSOCIATEDCONTEXTAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetCurrentAssociatedContextAMD")) == NULL) ||
+              (const GLubyte *)"wglGetCurrentAssociatedContextAMD")) == NULL) ||
         r;
-    r = ((wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)glewGetProcAddress((const GLubyte*)"wglGetGPUIDsAMD")) == NULL) ||
+    r = ((wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)glewGetProcAddress((const GLubyte *)"wglGetGPUIDsAMD")) == NULL) ||
         r;
-    r = ((wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)glewGetProcAddress((const GLubyte*)"wglGetGPUInfoAMD")) ==
+    r = ((wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)glewGetProcAddress((const GLubyte *)"wglGetGPUInfoAMD")) ==
          NULL) ||
         r;
     r = ((wglMakeAssociatedContextCurrentAMD = (PFNWGLMAKEASSOCIATEDCONTEXTCURRENTAMDPROC)glewGetProcAddress(
-              (const GLubyte*)"wglMakeAssociatedContextCurrentAMD")) == NULL) ||
+              (const GLubyte *)"wglMakeAssociatedContextCurrentAMD")) == NULL) ||
         r;
 
     return r;
@@ -23570,16 +23570,16 @@ static GLboolean _glewInit_WGL_ARB_buffer_region() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCreateBufferRegionARB = (PFNWGLCREATEBUFFERREGIONARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglCreateBufferRegionARB")) == NULL) ||
+              (const GLubyte *)"wglCreateBufferRegionARB")) == NULL) ||
         r;
     r = ((wglDeleteBufferRegionARB = (PFNWGLDELETEBUFFERREGIONARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglDeleteBufferRegionARB")) == NULL) ||
+              (const GLubyte *)"wglDeleteBufferRegionARB")) == NULL) ||
         r;
     r = ((wglRestoreBufferRegionARB = (PFNWGLRESTOREBUFFERREGIONARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglRestoreBufferRegionARB")) == NULL) ||
+              (const GLubyte *)"wglRestoreBufferRegionARB")) == NULL) ||
         r;
     r = ((wglSaveBufferRegionARB =
-              (PFNWGLSAVEBUFFERREGIONARBPROC)glewGetProcAddress((const GLubyte*)"wglSaveBufferRegionARB")) == NULL) ||
+              (PFNWGLSAVEBUFFERREGIONARBPROC)glewGetProcAddress((const GLubyte *)"wglSaveBufferRegionARB")) == NULL) ||
         r;
 
     return r;
@@ -23593,7 +23593,7 @@ static GLboolean _glewInit_WGL_ARB_create_context() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglCreateContextAttribsARB")) == NULL) ||
+              (const GLubyte *)"wglCreateContextAttribsARB")) == NULL) ||
         r;
 
     return r;
@@ -23607,7 +23607,7 @@ static GLboolean _glewInit_WGL_ARB_extensions_string() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetExtensionsStringARB")) == NULL) ||
+              (const GLubyte *)"wglGetExtensionsStringARB")) == NULL) ||
         r;
 
     return r;
@@ -23621,10 +23621,10 @@ static GLboolean _glewInit_WGL_ARB_make_current_read() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetCurrentReadDCARB =
-              (PFNWGLGETCURRENTREADDCARBPROC)glewGetProcAddress((const GLubyte*)"wglGetCurrentReadDCARB")) == NULL) ||
+              (PFNWGLGETCURRENTREADDCARBPROC)glewGetProcAddress((const GLubyte *)"wglGetCurrentReadDCARB")) == NULL) ||
         r;
     r = ((wglMakeContextCurrentARB = (PFNWGLMAKECONTEXTCURRENTARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglMakeContextCurrentARB")) == NULL) ||
+              (const GLubyte *)"wglMakeContextCurrentARB")) == NULL) ||
         r;
 
     return r;
@@ -23638,19 +23638,19 @@ static GLboolean _glewInit_WGL_ARB_pbuffer() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCreatePbufferARB =
-              (PFNWGLCREATEPBUFFERARBPROC)glewGetProcAddress((const GLubyte*)"wglCreatePbufferARB")) == NULL) ||
+              (PFNWGLCREATEPBUFFERARBPROC)glewGetProcAddress((const GLubyte *)"wglCreatePbufferARB")) == NULL) ||
         r;
     r = ((wglDestroyPbufferARB =
-              (PFNWGLDESTROYPBUFFERARBPROC)glewGetProcAddress((const GLubyte*)"wglDestroyPbufferARB")) == NULL) ||
+              (PFNWGLDESTROYPBUFFERARBPROC)glewGetProcAddress((const GLubyte *)"wglDestroyPbufferARB")) == NULL) ||
         r;
-    r = ((wglGetPbufferDCARB = (PFNWGLGETPBUFFERDCARBPROC)glewGetProcAddress((const GLubyte*)"wglGetPbufferDCARB")) ==
+    r = ((wglGetPbufferDCARB = (PFNWGLGETPBUFFERDCARBPROC)glewGetProcAddress((const GLubyte *)"wglGetPbufferDCARB")) ==
          NULL) ||
         r;
-    r = ((wglQueryPbufferARB = (PFNWGLQUERYPBUFFERARBPROC)glewGetProcAddress((const GLubyte*)"wglQueryPbufferARB")) ==
+    r = ((wglQueryPbufferARB = (PFNWGLQUERYPBUFFERARBPROC)glewGetProcAddress((const GLubyte *)"wglQueryPbufferARB")) ==
          NULL) ||
         r;
     r = ((wglReleasePbufferDCARB =
-              (PFNWGLRELEASEPBUFFERDCARBPROC)glewGetProcAddress((const GLubyte*)"wglReleasePbufferDCARB")) == NULL) ||
+              (PFNWGLRELEASEPBUFFERDCARBPROC)glewGetProcAddress((const GLubyte *)"wglReleasePbufferDCARB")) == NULL) ||
         r;
 
     return r;
@@ -23663,14 +23663,14 @@ static GLboolean _glewInit_WGL_ARB_pbuffer() {
 static GLboolean _glewInit_WGL_ARB_pixel_format() {
     GLboolean r = GL_FALSE;
 
-    r = ((wglChoosePixelFormatARB =
-              (PFNWGLCHOOSEPIXELFORMATARBPROC)glewGetProcAddress((const GLubyte*)"wglChoosePixelFormatARB")) == NULL) ||
+    r = ((wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)glewGetProcAddress(
+              (const GLubyte *)"wglChoosePixelFormatARB")) == NULL) ||
         r;
     r = ((wglGetPixelFormatAttribfvARB = (PFNWGLGETPIXELFORMATATTRIBFVARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetPixelFormatAttribfvARB")) == NULL) ||
+              (const GLubyte *)"wglGetPixelFormatAttribfvARB")) == NULL) ||
         r;
     r = ((wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetPixelFormatAttribivARB")) == NULL) ||
+              (const GLubyte *)"wglGetPixelFormatAttribivARB")) == NULL) ||
         r;
 
     return r;
@@ -23683,14 +23683,14 @@ static GLboolean _glewInit_WGL_ARB_pixel_format() {
 static GLboolean _glewInit_WGL_ARB_render_texture() {
     GLboolean r = GL_FALSE;
 
-    r = ((wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC)glewGetProcAddress((const GLubyte*)"wglBindTexImageARB")) ==
+    r = ((wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC)glewGetProcAddress((const GLubyte *)"wglBindTexImageARB")) ==
          NULL) ||
         r;
     r = ((wglReleaseTexImageARB =
-              (PFNWGLRELEASETEXIMAGEARBPROC)glewGetProcAddress((const GLubyte*)"wglReleaseTexImageARB")) == NULL) ||
+              (PFNWGLRELEASETEXIMAGEARBPROC)glewGetProcAddress((const GLubyte *)"wglReleaseTexImageARB")) == NULL) ||
         r;
     r = ((wglSetPbufferAttribARB =
-              (PFNWGLSETPBUFFERATTRIBARBPROC)glewGetProcAddress((const GLubyte*)"wglSetPbufferAttribARB")) == NULL) ||
+              (PFNWGLSETPBUFFERATTRIBARBPROC)glewGetProcAddress((const GLubyte *)"wglSetPbufferAttribARB")) == NULL) ||
         r;
 
     return r;
@@ -23704,16 +23704,16 @@ static GLboolean _glewInit_WGL_EXT_display_color_table() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBindDisplayColorTableEXT = (PFNWGLBINDDISPLAYCOLORTABLEEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglBindDisplayColorTableEXT")) == NULL) ||
+              (const GLubyte *)"wglBindDisplayColorTableEXT")) == NULL) ||
         r;
     r = ((wglCreateDisplayColorTableEXT = (PFNWGLCREATEDISPLAYCOLORTABLEEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglCreateDisplayColorTableEXT")) == NULL) ||
+              (const GLubyte *)"wglCreateDisplayColorTableEXT")) == NULL) ||
         r;
     r = ((wglDestroyDisplayColorTableEXT = (PFNWGLDESTROYDISPLAYCOLORTABLEEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglDestroyDisplayColorTableEXT")) == NULL) ||
+              (const GLubyte *)"wglDestroyDisplayColorTableEXT")) == NULL) ||
         r;
     r = ((wglLoadDisplayColorTableEXT = (PFNWGLLOADDISPLAYCOLORTABLEEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglLoadDisplayColorTableEXT")) == NULL) ||
+              (const GLubyte *)"wglLoadDisplayColorTableEXT")) == NULL) ||
         r;
 
     return r;
@@ -23727,7 +23727,7 @@ static GLboolean _glewInit_WGL_EXT_extensions_string() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetExtensionsStringEXT")) == NULL) ||
+              (const GLubyte *)"wglGetExtensionsStringEXT")) == NULL) ||
         r;
 
     return r;
@@ -23741,10 +23741,10 @@ static GLboolean _glewInit_WGL_EXT_make_current_read() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetCurrentReadDCEXT =
-              (PFNWGLGETCURRENTREADDCEXTPROC)glewGetProcAddress((const GLubyte*)"wglGetCurrentReadDCEXT")) == NULL) ||
+              (PFNWGLGETCURRENTREADDCEXTPROC)glewGetProcAddress((const GLubyte *)"wglGetCurrentReadDCEXT")) == NULL) ||
         r;
     r = ((wglMakeContextCurrentEXT = (PFNWGLMAKECONTEXTCURRENTEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglMakeContextCurrentEXT")) == NULL) ||
+              (const GLubyte *)"wglMakeContextCurrentEXT")) == NULL) ||
         r;
 
     return r;
@@ -23758,19 +23758,19 @@ static GLboolean _glewInit_WGL_EXT_pbuffer() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCreatePbufferEXT =
-              (PFNWGLCREATEPBUFFEREXTPROC)glewGetProcAddress((const GLubyte*)"wglCreatePbufferEXT")) == NULL) ||
+              (PFNWGLCREATEPBUFFEREXTPROC)glewGetProcAddress((const GLubyte *)"wglCreatePbufferEXT")) == NULL) ||
         r;
     r = ((wglDestroyPbufferEXT =
-              (PFNWGLDESTROYPBUFFEREXTPROC)glewGetProcAddress((const GLubyte*)"wglDestroyPbufferEXT")) == NULL) ||
+              (PFNWGLDESTROYPBUFFEREXTPROC)glewGetProcAddress((const GLubyte *)"wglDestroyPbufferEXT")) == NULL) ||
         r;
-    r = ((wglGetPbufferDCEXT = (PFNWGLGETPBUFFERDCEXTPROC)glewGetProcAddress((const GLubyte*)"wglGetPbufferDCEXT")) ==
+    r = ((wglGetPbufferDCEXT = (PFNWGLGETPBUFFERDCEXTPROC)glewGetProcAddress((const GLubyte *)"wglGetPbufferDCEXT")) ==
          NULL) ||
         r;
-    r = ((wglQueryPbufferEXT = (PFNWGLQUERYPBUFFEREXTPROC)glewGetProcAddress((const GLubyte*)"wglQueryPbufferEXT")) ==
+    r = ((wglQueryPbufferEXT = (PFNWGLQUERYPBUFFEREXTPROC)glewGetProcAddress((const GLubyte *)"wglQueryPbufferEXT")) ==
          NULL) ||
         r;
     r = ((wglReleasePbufferDCEXT =
-              (PFNWGLRELEASEPBUFFERDCEXTPROC)glewGetProcAddress((const GLubyte*)"wglReleasePbufferDCEXT")) == NULL) ||
+              (PFNWGLRELEASEPBUFFERDCEXTPROC)glewGetProcAddress((const GLubyte *)"wglReleasePbufferDCEXT")) == NULL) ||
         r;
 
     return r;
@@ -23783,14 +23783,14 @@ static GLboolean _glewInit_WGL_EXT_pbuffer() {
 static GLboolean _glewInit_WGL_EXT_pixel_format() {
     GLboolean r = GL_FALSE;
 
-    r = ((wglChoosePixelFormatEXT =
-              (PFNWGLCHOOSEPIXELFORMATEXTPROC)glewGetProcAddress((const GLubyte*)"wglChoosePixelFormatEXT")) == NULL) ||
+    r = ((wglChoosePixelFormatEXT = (PFNWGLCHOOSEPIXELFORMATEXTPROC)glewGetProcAddress(
+              (const GLubyte *)"wglChoosePixelFormatEXT")) == NULL) ||
         r;
     r = ((wglGetPixelFormatAttribfvEXT = (PFNWGLGETPIXELFORMATATTRIBFVEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetPixelFormatAttribfvEXT")) == NULL) ||
+              (const GLubyte *)"wglGetPixelFormatAttribfvEXT")) == NULL) ||
         r;
     r = ((wglGetPixelFormatAttribivEXT = (PFNWGLGETPIXELFORMATATTRIBIVEXTPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetPixelFormatAttribivEXT")) == NULL) ||
+              (const GLubyte *)"wglGetPixelFormatAttribivEXT")) == NULL) ||
         r;
 
     return r;
@@ -23804,9 +23804,9 @@ static GLboolean _glewInit_WGL_EXT_swap_control() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetSwapIntervalEXT =
-              (PFNWGLGETSWAPINTERVALEXTPROC)glewGetProcAddress((const GLubyte*)"wglGetSwapIntervalEXT")) == NULL) ||
+              (PFNWGLGETSWAPINTERVALEXTPROC)glewGetProcAddress((const GLubyte *)"wglGetSwapIntervalEXT")) == NULL) ||
         r;
-    r = ((wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)glewGetProcAddress((const GLubyte*)"wglSwapIntervalEXT")) ==
+    r = ((wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)glewGetProcAddress((const GLubyte *)"wglSwapIntervalEXT")) ==
          NULL) ||
         r;
 
@@ -23821,10 +23821,10 @@ static GLboolean _glewInit_WGL_I3D_digital_video_control() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetDigitalVideoParametersI3D = (PFNWGLGETDIGITALVIDEOPARAMETERSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetDigitalVideoParametersI3D")) == NULL) ||
+              (const GLubyte *)"wglGetDigitalVideoParametersI3D")) == NULL) ||
         r;
     r = ((wglSetDigitalVideoParametersI3D = (PFNWGLSETDIGITALVIDEOPARAMETERSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglSetDigitalVideoParametersI3D")) == NULL) ||
+              (const GLubyte *)"wglSetDigitalVideoParametersI3D")) == NULL) ||
         r;
 
     return r;
@@ -23838,16 +23838,16 @@ static GLboolean _glewInit_WGL_I3D_gamma() {
     GLboolean r = GL_FALSE;
 
     r = ((wglGetGammaTableI3D =
-              (PFNWGLGETGAMMATABLEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGetGammaTableI3D")) == NULL) ||
+              (PFNWGLGETGAMMATABLEI3DPROC)glewGetProcAddress((const GLubyte *)"wglGetGammaTableI3D")) == NULL) ||
         r;
     r = ((wglGetGammaTableParametersI3D = (PFNWGLGETGAMMATABLEPARAMETERSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetGammaTableParametersI3D")) == NULL) ||
+              (const GLubyte *)"wglGetGammaTableParametersI3D")) == NULL) ||
         r;
     r = ((wglSetGammaTableI3D =
-              (PFNWGLSETGAMMATABLEI3DPROC)glewGetProcAddress((const GLubyte*)"wglSetGammaTableI3D")) == NULL) ||
+              (PFNWGLSETGAMMATABLEI3DPROC)glewGetProcAddress((const GLubyte *)"wglSetGammaTableI3D")) == NULL) ||
         r;
     r = ((wglSetGammaTableParametersI3D = (PFNWGLSETGAMMATABLEPARAMETERSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglSetGammaTableParametersI3D")) == NULL) ||
+              (const GLubyte *)"wglSetGammaTableParametersI3D")) == NULL) ||
         r;
 
     return r;
@@ -23861,40 +23861,40 @@ static GLboolean _glewInit_WGL_I3D_genlock() {
     GLboolean r = GL_FALSE;
 
     r = ((wglDisableGenlockI3D =
-              (PFNWGLDISABLEGENLOCKI3DPROC)glewGetProcAddress((const GLubyte*)"wglDisableGenlockI3D")) == NULL) ||
+              (PFNWGLDISABLEGENLOCKI3DPROC)glewGetProcAddress((const GLubyte *)"wglDisableGenlockI3D")) == NULL) ||
         r;
     r = ((wglEnableGenlockI3D =
-              (PFNWGLENABLEGENLOCKI3DPROC)glewGetProcAddress((const GLubyte*)"wglEnableGenlockI3D")) == NULL) ||
+              (PFNWGLENABLEGENLOCKI3DPROC)glewGetProcAddress((const GLubyte *)"wglEnableGenlockI3D")) == NULL) ||
         r;
-    r = ((wglGenlockSampleRateI3D =
-              (PFNWGLGENLOCKSAMPLERATEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGenlockSampleRateI3D")) == NULL) ||
+    r = ((wglGenlockSampleRateI3D = (PFNWGLGENLOCKSAMPLERATEI3DPROC)glewGetProcAddress(
+              (const GLubyte *)"wglGenlockSampleRateI3D")) == NULL) ||
         r;
     r = ((wglGenlockSourceDelayI3D = (PFNWGLGENLOCKSOURCEDELAYI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGenlockSourceDelayI3D")) == NULL) ||
+              (const GLubyte *)"wglGenlockSourceDelayI3D")) == NULL) ||
         r;
-    r = ((wglGenlockSourceEdgeI3D =
-              (PFNWGLGENLOCKSOURCEEDGEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGenlockSourceEdgeI3D")) == NULL) ||
+    r = ((wglGenlockSourceEdgeI3D = (PFNWGLGENLOCKSOURCEEDGEI3DPROC)glewGetProcAddress(
+              (const GLubyte *)"wglGenlockSourceEdgeI3D")) == NULL) ||
         r;
     r = ((wglGenlockSourceI3D =
-              (PFNWGLGENLOCKSOURCEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGenlockSourceI3D")) == NULL) ||
+              (PFNWGLGENLOCKSOURCEI3DPROC)glewGetProcAddress((const GLubyte *)"wglGenlockSourceI3D")) == NULL) ||
         r;
     r = ((wglGetGenlockSampleRateI3D = (PFNWGLGETGENLOCKSAMPLERATEI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetGenlockSampleRateI3D")) == NULL) ||
+              (const GLubyte *)"wglGetGenlockSampleRateI3D")) == NULL) ||
         r;
     r = ((wglGetGenlockSourceDelayI3D = (PFNWGLGETGENLOCKSOURCEDELAYI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetGenlockSourceDelayI3D")) == NULL) ||
+              (const GLubyte *)"wglGetGenlockSourceDelayI3D")) == NULL) ||
         r;
     r = ((wglGetGenlockSourceEdgeI3D = (PFNWGLGETGENLOCKSOURCEEDGEI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglGetGenlockSourceEdgeI3D")) == NULL) ||
+              (const GLubyte *)"wglGetGenlockSourceEdgeI3D")) == NULL) ||
         r;
     r = ((wglGetGenlockSourceI3D =
-              (PFNWGLGETGENLOCKSOURCEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGetGenlockSourceI3D")) == NULL) ||
+              (PFNWGLGETGENLOCKSOURCEI3DPROC)glewGetProcAddress((const GLubyte *)"wglGetGenlockSourceI3D")) == NULL) ||
         r;
     r = ((wglIsEnabledGenlockI3D =
-              (PFNWGLISENABLEDGENLOCKI3DPROC)glewGetProcAddress((const GLubyte*)"wglIsEnabledGenlockI3D")) == NULL) ||
+              (PFNWGLISENABLEDGENLOCKI3DPROC)glewGetProcAddress((const GLubyte *)"wglIsEnabledGenlockI3D")) == NULL) ||
         r;
     r = ((wglQueryGenlockMaxSourceDelayI3D = (PFNWGLQUERYGENLOCKMAXSOURCEDELAYI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglQueryGenlockMaxSourceDelayI3D")) == NULL) ||
+              (const GLubyte *)"wglQueryGenlockMaxSourceDelayI3D")) == NULL) ||
         r;
 
     return r;
@@ -23908,16 +23908,16 @@ static GLboolean _glewInit_WGL_I3D_image_buffer() {
     GLboolean r = GL_FALSE;
 
     r = ((wglAssociateImageBufferEventsI3D = (PFNWGLASSOCIATEIMAGEBUFFEREVENTSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglAssociateImageBufferEventsI3D")) == NULL) ||
+              (const GLubyte *)"wglAssociateImageBufferEventsI3D")) == NULL) ||
         r;
-    r = ((wglCreateImageBufferI3D =
-              (PFNWGLCREATEIMAGEBUFFERI3DPROC)glewGetProcAddress((const GLubyte*)"wglCreateImageBufferI3D")) == NULL) ||
+    r = ((wglCreateImageBufferI3D = (PFNWGLCREATEIMAGEBUFFERI3DPROC)glewGetProcAddress(
+              (const GLubyte *)"wglCreateImageBufferI3D")) == NULL) ||
         r;
     r = ((wglDestroyImageBufferI3D = (PFNWGLDESTROYIMAGEBUFFERI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglDestroyImageBufferI3D")) == NULL) ||
+              (const GLubyte *)"wglDestroyImageBufferI3D")) == NULL) ||
         r;
     r = ((wglReleaseImageBufferEventsI3D = (PFNWGLRELEASEIMAGEBUFFEREVENTSI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglReleaseImageBufferEventsI3D")) == NULL) ||
+              (const GLubyte *)"wglReleaseImageBufferEventsI3D")) == NULL) ||
         r;
 
     return r;
@@ -23931,16 +23931,16 @@ static GLboolean _glewInit_WGL_I3D_swap_frame_lock() {
     GLboolean r = GL_FALSE;
 
     r = ((wglDisableFrameLockI3D =
-              (PFNWGLDISABLEFRAMELOCKI3DPROC)glewGetProcAddress((const GLubyte*)"wglDisableFrameLockI3D")) == NULL) ||
+              (PFNWGLDISABLEFRAMELOCKI3DPROC)glewGetProcAddress((const GLubyte *)"wglDisableFrameLockI3D")) == NULL) ||
         r;
     r = ((wglEnableFrameLockI3D =
-              (PFNWGLENABLEFRAMELOCKI3DPROC)glewGetProcAddress((const GLubyte*)"wglEnableFrameLockI3D")) == NULL) ||
+              (PFNWGLENABLEFRAMELOCKI3DPROC)glewGetProcAddress((const GLubyte *)"wglEnableFrameLockI3D")) == NULL) ||
         r;
     r = ((wglIsEnabledFrameLockI3D = (PFNWGLISENABLEDFRAMELOCKI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglIsEnabledFrameLockI3D")) == NULL) ||
+              (const GLubyte *)"wglIsEnabledFrameLockI3D")) == NULL) ||
         r;
     r = ((wglQueryFrameLockMasterI3D = (PFNWGLQUERYFRAMELOCKMASTERI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglQueryFrameLockMasterI3D")) == NULL) ||
+              (const GLubyte *)"wglQueryFrameLockMasterI3D")) == NULL) ||
         r;
 
     return r;
@@ -23954,16 +23954,16 @@ static GLboolean _glewInit_WGL_I3D_swap_frame_usage() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBeginFrameTrackingI3D = (PFNWGLBEGINFRAMETRACKINGI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglBeginFrameTrackingI3D")) == NULL) ||
+              (const GLubyte *)"wglBeginFrameTrackingI3D")) == NULL) ||
         r;
     r = ((wglEndFrameTrackingI3D =
-              (PFNWGLENDFRAMETRACKINGI3DPROC)glewGetProcAddress((const GLubyte*)"wglEndFrameTrackingI3D")) == NULL) ||
+              (PFNWGLENDFRAMETRACKINGI3DPROC)glewGetProcAddress((const GLubyte *)"wglEndFrameTrackingI3D")) == NULL) ||
         r;
     r = ((wglGetFrameUsageI3D =
-              (PFNWGLGETFRAMEUSAGEI3DPROC)glewGetProcAddress((const GLubyte*)"wglGetFrameUsageI3D")) == NULL) ||
+              (PFNWGLGETFRAMEUSAGEI3DPROC)glewGetProcAddress((const GLubyte *)"wglGetFrameUsageI3D")) == NULL) ||
         r;
     r = ((wglQueryFrameTrackingI3D = (PFNWGLQUERYFRAMETRACKINGI3DPROC)glewGetProcAddress(
-              (const GLubyte*)"wglQueryFrameTrackingI3D")) == NULL) ||
+              (const GLubyte *)"wglQueryFrameTrackingI3D")) == NULL) ||
         r;
 
     return r;
@@ -23976,29 +23976,29 @@ static GLboolean _glewInit_WGL_I3D_swap_frame_usage() {
 static GLboolean _glewInit_WGL_NV_DX_interop() {
     GLboolean r = GL_FALSE;
 
-    r = ((wglDXCloseDeviceNV = (PFNWGLDXCLOSEDEVICENVPROC)glewGetProcAddress((const GLubyte*)"wglDXCloseDeviceNV")) ==
+    r = ((wglDXCloseDeviceNV = (PFNWGLDXCLOSEDEVICENVPROC)glewGetProcAddress((const GLubyte *)"wglDXCloseDeviceNV")) ==
          NULL) ||
         r;
-    r = ((wglDXLockObjectsNV = (PFNWGLDXLOCKOBJECTSNVPROC)glewGetProcAddress((const GLubyte*)"wglDXLockObjectsNV")) ==
+    r = ((wglDXLockObjectsNV = (PFNWGLDXLOCKOBJECTSNVPROC)glewGetProcAddress((const GLubyte *)"wglDXLockObjectsNV")) ==
          NULL) ||
         r;
     r = ((wglDXObjectAccessNV =
-              (PFNWGLDXOBJECTACCESSNVPROC)glewGetProcAddress((const GLubyte*)"wglDXObjectAccessNV")) == NULL) ||
+              (PFNWGLDXOBJECTACCESSNVPROC)glewGetProcAddress((const GLubyte *)"wglDXObjectAccessNV")) == NULL) ||
         r;
-    r = ((wglDXOpenDeviceNV = (PFNWGLDXOPENDEVICENVPROC)glewGetProcAddress((const GLubyte*)"wglDXOpenDeviceNV")) ==
+    r = ((wglDXOpenDeviceNV = (PFNWGLDXOPENDEVICENVPROC)glewGetProcAddress((const GLubyte *)"wglDXOpenDeviceNV")) ==
          NULL) ||
         r;
     r = ((wglDXRegisterObjectNV =
-              (PFNWGLDXREGISTEROBJECTNVPROC)glewGetProcAddress((const GLubyte*)"wglDXRegisterObjectNV")) == NULL) ||
+              (PFNWGLDXREGISTEROBJECTNVPROC)glewGetProcAddress((const GLubyte *)"wglDXRegisterObjectNV")) == NULL) ||
         r;
     r = ((wglDXSetResourceShareHandleNV = (PFNWGLDXSETRESOURCESHAREHANDLENVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglDXSetResourceShareHandleNV")) == NULL) ||
+              (const GLubyte *)"wglDXSetResourceShareHandleNV")) == NULL) ||
         r;
     r = ((wglDXUnlockObjectsNV =
-              (PFNWGLDXUNLOCKOBJECTSNVPROC)glewGetProcAddress((const GLubyte*)"wglDXUnlockObjectsNV")) == NULL) ||
+              (PFNWGLDXUNLOCKOBJECTSNVPROC)glewGetProcAddress((const GLubyte *)"wglDXUnlockObjectsNV")) == NULL) ||
         r;
-    r = ((wglDXUnregisterObjectNV =
-              (PFNWGLDXUNREGISTEROBJECTNVPROC)glewGetProcAddress((const GLubyte*)"wglDXUnregisterObjectNV")) == NULL) ||
+    r = ((wglDXUnregisterObjectNV = (PFNWGLDXUNREGISTEROBJECTNVPROC)glewGetProcAddress(
+              (const GLubyte *)"wglDXUnregisterObjectNV")) == NULL) ||
         r;
 
     return r;
@@ -24012,7 +24012,7 @@ static GLboolean _glewInit_WGL_NV_copy_image() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCopyImageSubDataNV =
-              (PFNWGLCOPYIMAGESUBDATANVPROC)glewGetProcAddress((const GLubyte*)"wglCopyImageSubDataNV")) == NULL) ||
+              (PFNWGLCOPYIMAGESUBDATANVPROC)glewGetProcAddress((const GLubyte *)"wglCopyImageSubDataNV")) == NULL) ||
         r;
 
     return r;
@@ -24026,7 +24026,7 @@ static GLboolean _glewInit_WGL_NV_delay_before_swap() {
     GLboolean r = GL_FALSE;
 
     r = ((wglDelayBeforeSwapNV =
-              (PFNWGLDELAYBEFORESWAPNVPROC)glewGetProcAddress((const GLubyte*)"wglDelayBeforeSwapNV")) == NULL) ||
+              (PFNWGLDELAYBEFORESWAPNVPROC)glewGetProcAddress((const GLubyte *)"wglDelayBeforeSwapNV")) == NULL) ||
         r;
 
     return r;
@@ -24040,16 +24040,16 @@ static GLboolean _glewInit_WGL_NV_gpu_affinity() {
     GLboolean r = GL_FALSE;
 
     r = ((wglCreateAffinityDCNV =
-              (PFNWGLCREATEAFFINITYDCNVPROC)glewGetProcAddress((const GLubyte*)"wglCreateAffinityDCNV")) == NULL) ||
+              (PFNWGLCREATEAFFINITYDCNVPROC)glewGetProcAddress((const GLubyte *)"wglCreateAffinityDCNV")) == NULL) ||
         r;
-    r = ((wglDeleteDCNV = (PFNWGLDELETEDCNVPROC)glewGetProcAddress((const GLubyte*)"wglDeleteDCNV")) == NULL) || r;
+    r = ((wglDeleteDCNV = (PFNWGLDELETEDCNVPROC)glewGetProcAddress((const GLubyte *)"wglDeleteDCNV")) == NULL) || r;
     r = ((wglEnumGpuDevicesNV =
-              (PFNWGLENUMGPUDEVICESNVPROC)glewGetProcAddress((const GLubyte*)"wglEnumGpuDevicesNV")) == NULL) ||
+              (PFNWGLENUMGPUDEVICESNVPROC)glewGetProcAddress((const GLubyte *)"wglEnumGpuDevicesNV")) == NULL) ||
         r;
     r = ((wglEnumGpusFromAffinityDCNV = (PFNWGLENUMGPUSFROMAFFINITYDCNVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglEnumGpusFromAffinityDCNV")) == NULL) ||
+              (const GLubyte *)"wglEnumGpusFromAffinityDCNV")) == NULL) ||
         r;
-    r = ((wglEnumGpusNV = (PFNWGLENUMGPUSNVPROC)glewGetProcAddress((const GLubyte*)"wglEnumGpusNV")) == NULL) || r;
+    r = ((wglEnumGpusNV = (PFNWGLENUMGPUSNVPROC)glewGetProcAddress((const GLubyte *)"wglEnumGpusNV")) == NULL) || r;
 
     return r;
 }
@@ -24062,13 +24062,13 @@ static GLboolean _glewInit_WGL_NV_present_video() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBindVideoDeviceNV =
-              (PFNWGLBINDVIDEODEVICENVPROC)glewGetProcAddress((const GLubyte*)"wglBindVideoDeviceNV")) == NULL) ||
+              (PFNWGLBINDVIDEODEVICENVPROC)glewGetProcAddress((const GLubyte *)"wglBindVideoDeviceNV")) == NULL) ||
         r;
     r = ((wglEnumerateVideoDevicesNV = (PFNWGLENUMERATEVIDEODEVICESNVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglEnumerateVideoDevicesNV")) == NULL) ||
+              (const GLubyte *)"wglEnumerateVideoDevicesNV")) == NULL) ||
         r;
     r = ((wglQueryCurrentContextNV = (PFNWGLQUERYCURRENTCONTEXTNVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglQueryCurrentContextNV")) == NULL) ||
+              (const GLubyte *)"wglQueryCurrentContextNV")) == NULL) ||
         r;
 
     return r;
@@ -24082,22 +24082,22 @@ static GLboolean _glewInit_WGL_NV_swap_group() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBindSwapBarrierNV =
-              (PFNWGLBINDSWAPBARRIERNVPROC)glewGetProcAddress((const GLubyte*)"wglBindSwapBarrierNV")) == NULL) ||
+              (PFNWGLBINDSWAPBARRIERNVPROC)glewGetProcAddress((const GLubyte *)"wglBindSwapBarrierNV")) == NULL) ||
         r;
-    r = ((wglJoinSwapGroupNV = (PFNWGLJOINSWAPGROUPNVPROC)glewGetProcAddress((const GLubyte*)"wglJoinSwapGroupNV")) ==
+    r = ((wglJoinSwapGroupNV = (PFNWGLJOINSWAPGROUPNVPROC)glewGetProcAddress((const GLubyte *)"wglJoinSwapGroupNV")) ==
          NULL) ||
         r;
     r = ((wglQueryFrameCountNV =
-              (PFNWGLQUERYFRAMECOUNTNVPROC)glewGetProcAddress((const GLubyte*)"wglQueryFrameCountNV")) == NULL) ||
+              (PFNWGLQUERYFRAMECOUNTNVPROC)glewGetProcAddress((const GLubyte *)"wglQueryFrameCountNV")) == NULL) ||
         r;
-    r = ((wglQueryMaxSwapGroupsNV =
-              (PFNWGLQUERYMAXSWAPGROUPSNVPROC)glewGetProcAddress((const GLubyte*)"wglQueryMaxSwapGroupsNV")) == NULL) ||
+    r = ((wglQueryMaxSwapGroupsNV = (PFNWGLQUERYMAXSWAPGROUPSNVPROC)glewGetProcAddress(
+              (const GLubyte *)"wglQueryMaxSwapGroupsNV")) == NULL) ||
         r;
     r = ((wglQuerySwapGroupNV =
-              (PFNWGLQUERYSWAPGROUPNVPROC)glewGetProcAddress((const GLubyte*)"wglQuerySwapGroupNV")) == NULL) ||
+              (PFNWGLQUERYSWAPGROUPNVPROC)glewGetProcAddress((const GLubyte *)"wglQuerySwapGroupNV")) == NULL) ||
         r;
     r = ((wglResetFrameCountNV =
-              (PFNWGLRESETFRAMECOUNTNVPROC)glewGetProcAddress((const GLubyte*)"wglResetFrameCountNV")) == NULL) ||
+              (PFNWGLRESETFRAMECOUNTNVPROC)glewGetProcAddress((const GLubyte *)"wglResetFrameCountNV")) == NULL) ||
         r;
 
     return r;
@@ -24111,9 +24111,9 @@ static GLboolean _glewInit_WGL_NV_vertex_array_range() {
     GLboolean r = GL_FALSE;
 
     r = ((wglAllocateMemoryNV =
-              (PFNWGLALLOCATEMEMORYNVPROC)glewGetProcAddress((const GLubyte*)"wglAllocateMemoryNV")) == NULL) ||
+              (PFNWGLALLOCATEMEMORYNVPROC)glewGetProcAddress((const GLubyte *)"wglAllocateMemoryNV")) == NULL) ||
         r;
-    r = ((wglFreeMemoryNV = (PFNWGLFREEMEMORYNVPROC)glewGetProcAddress((const GLubyte*)"wglFreeMemoryNV")) == NULL) ||
+    r = ((wglFreeMemoryNV = (PFNWGLFREEMEMORYNVPROC)glewGetProcAddress((const GLubyte *)"wglFreeMemoryNV")) == NULL) ||
         r;
 
     return r;
@@ -24127,19 +24127,19 @@ static GLboolean _glewInit_WGL_NV_video_capture() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBindVideoCaptureDeviceNV = (PFNWGLBINDVIDEOCAPTUREDEVICENVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglBindVideoCaptureDeviceNV")) == NULL) ||
+              (const GLubyte *)"wglBindVideoCaptureDeviceNV")) == NULL) ||
         r;
     r = ((wglEnumerateVideoCaptureDevicesNV = (PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglEnumerateVideoCaptureDevicesNV")) == NULL) ||
+              (const GLubyte *)"wglEnumerateVideoCaptureDevicesNV")) == NULL) ||
         r;
     r = ((wglLockVideoCaptureDeviceNV = (PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglLockVideoCaptureDeviceNV")) == NULL) ||
+              (const GLubyte *)"wglLockVideoCaptureDeviceNV")) == NULL) ||
         r;
     r = ((wglQueryVideoCaptureDeviceNV = (PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglQueryVideoCaptureDeviceNV")) == NULL) ||
+              (const GLubyte *)"wglQueryVideoCaptureDeviceNV")) == NULL) ||
         r;
     r = ((wglReleaseVideoCaptureDeviceNV = (PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC)glewGetProcAddress(
-              (const GLubyte*)"wglReleaseVideoCaptureDeviceNV")) == NULL) ||
+              (const GLubyte *)"wglReleaseVideoCaptureDeviceNV")) == NULL) ||
         r;
 
     return r;
@@ -24153,22 +24153,22 @@ static GLboolean _glewInit_WGL_NV_video_output() {
     GLboolean r = GL_FALSE;
 
     r = ((wglBindVideoImageNV =
-              (PFNWGLBINDVIDEOIMAGENVPROC)glewGetProcAddress((const GLubyte*)"wglBindVideoImageNV")) == NULL) ||
+              (PFNWGLBINDVIDEOIMAGENVPROC)glewGetProcAddress((const GLubyte *)"wglBindVideoImageNV")) == NULL) ||
         r;
     r = ((wglGetVideoDeviceNV =
-              (PFNWGLGETVIDEODEVICENVPROC)glewGetProcAddress((const GLubyte*)"wglGetVideoDeviceNV")) == NULL) ||
+              (PFNWGLGETVIDEODEVICENVPROC)glewGetProcAddress((const GLubyte *)"wglGetVideoDeviceNV")) == NULL) ||
         r;
-    r = ((wglGetVideoInfoNV = (PFNWGLGETVIDEOINFONVPROC)glewGetProcAddress((const GLubyte*)"wglGetVideoInfoNV")) ==
+    r = ((wglGetVideoInfoNV = (PFNWGLGETVIDEOINFONVPROC)glewGetProcAddress((const GLubyte *)"wglGetVideoInfoNV")) ==
          NULL) ||
         r;
-    r = ((wglReleaseVideoDeviceNV =
-              (PFNWGLRELEASEVIDEODEVICENVPROC)glewGetProcAddress((const GLubyte*)"wglReleaseVideoDeviceNV")) == NULL) ||
+    r = ((wglReleaseVideoDeviceNV = (PFNWGLRELEASEVIDEODEVICENVPROC)glewGetProcAddress(
+              (const GLubyte *)"wglReleaseVideoDeviceNV")) == NULL) ||
         r;
     r = ((wglReleaseVideoImageNV =
-              (PFNWGLRELEASEVIDEOIMAGENVPROC)glewGetProcAddress((const GLubyte*)"wglReleaseVideoImageNV")) == NULL) ||
+              (PFNWGLRELEASEVIDEOIMAGENVPROC)glewGetProcAddress((const GLubyte *)"wglReleaseVideoImageNV")) == NULL) ||
         r;
-    r = ((wglSendPbufferToVideoNV =
-              (PFNWGLSENDPBUFFERTOVIDEONVPROC)glewGetProcAddress((const GLubyte*)"wglSendPbufferToVideoNV")) == NULL) ||
+    r = ((wglSendPbufferToVideoNV = (PFNWGLSENDPBUFFERTOVIDEONVPROC)glewGetProcAddress(
+              (const GLubyte *)"wglSendPbufferToVideoNV")) == NULL) ||
         r;
 
     return r;
@@ -24181,22 +24181,22 @@ static GLboolean _glewInit_WGL_NV_video_output() {
 static GLboolean _glewInit_WGL_OML_sync_control() {
     GLboolean r = GL_FALSE;
 
-    r = ((wglGetMscRateOML = (PFNWGLGETMSCRATEOMLPROC)glewGetProcAddress((const GLubyte*)"wglGetMscRateOML")) ==
+    r = ((wglGetMscRateOML = (PFNWGLGETMSCRATEOMLPROC)glewGetProcAddress((const GLubyte *)"wglGetMscRateOML")) ==
          NULL) ||
         r;
     r = ((wglGetSyncValuesOML =
-              (PFNWGLGETSYNCVALUESOMLPROC)glewGetProcAddress((const GLubyte*)"wglGetSyncValuesOML")) == NULL) ||
+              (PFNWGLGETSYNCVALUESOMLPROC)glewGetProcAddress((const GLubyte *)"wglGetSyncValuesOML")) == NULL) ||
         r;
     r = ((wglSwapBuffersMscOML =
-              (PFNWGLSWAPBUFFERSMSCOMLPROC)glewGetProcAddress((const GLubyte*)"wglSwapBuffersMscOML")) == NULL) ||
+              (PFNWGLSWAPBUFFERSMSCOMLPROC)glewGetProcAddress((const GLubyte *)"wglSwapBuffersMscOML")) == NULL) ||
         r;
     r = ((wglSwapLayerBuffersMscOML = (PFNWGLSWAPLAYERBUFFERSMSCOMLPROC)glewGetProcAddress(
-              (const GLubyte*)"wglSwapLayerBuffersMscOML")) == NULL) ||
+              (const GLubyte *)"wglSwapLayerBuffersMscOML")) == NULL) ||
         r;
-    r = ((wglWaitForMscOML = (PFNWGLWAITFORMSCOMLPROC)glewGetProcAddress((const GLubyte*)"wglWaitForMscOML")) ==
+    r = ((wglWaitForMscOML = (PFNWGLWAITFORMSCOMLPROC)glewGetProcAddress((const GLubyte *)"wglWaitForMscOML")) ==
          NULL) ||
         r;
-    r = ((wglWaitForSbcOML = (PFNWGLWAITFORSBCOMLPROC)glewGetProcAddress((const GLubyte*)"wglWaitForSbcOML")) ==
+    r = ((wglWaitForSbcOML = (PFNWGLWAITFORSBCOMLPROC)glewGetProcAddress((const GLubyte *)"wglWaitForSbcOML")) ==
          NULL) ||
         r;
 
@@ -24210,16 +24210,16 @@ static GLboolean _glewInit_WGL_OML_sync_control() {
 static PFNWGLGETEXTENSIONSSTRINGARBPROC _wglewGetExtensionsStringARB = NULL;
 static PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglewGetExtensionsStringEXT = NULL;
 
-GLboolean GLEWAPIENTRY wglewGetExtension(const char* name) {
-    const GLubyte* start;
-    const GLubyte* end;
+GLboolean GLEWAPIENTRY wglewGetExtension(const char *name) {
+    const GLubyte *start;
+    const GLubyte *end;
     if (_wglewGetExtensionsStringARB == NULL)
         if (_wglewGetExtensionsStringEXT == NULL)
             return GL_FALSE;
         else
-            start = (const GLubyte*)_wglewGetExtensionsStringEXT();
+            start = (const GLubyte *)_wglewGetExtensionsStringEXT();
     else
-        start = (const GLubyte*)_wglewGetExtensionsStringARB(wglGetCurrentDC());
+        start = (const GLubyte *)_wglewGetExtensionsStringARB(wglGetCurrentDC());
     if (start == 0) return GL_FALSE;
     end = start + _glewStrLen(start);
     return _glewSearchExtension(name, start, end);
@@ -24227,21 +24227,21 @@ GLboolean GLEWAPIENTRY wglewGetExtension(const char* name) {
 
 GLenum GLEWAPIENTRY wglewInit() {
     GLboolean crippled;
-    const GLubyte* extStart;
-    const GLubyte* extEnd;
+    const GLubyte *extStart;
+    const GLubyte *extEnd;
     /* find wgl extension string query functions */
     _wglewGetExtensionsStringARB =
-        (PFNWGLGETEXTENSIONSSTRINGARBPROC)glewGetProcAddress((const GLubyte*)"wglGetExtensionsStringARB");
+        (PFNWGLGETEXTENSIONSSTRINGARBPROC)glewGetProcAddress((const GLubyte *)"wglGetExtensionsStringARB");
     _wglewGetExtensionsStringEXT =
-        (PFNWGLGETEXTENSIONSSTRINGEXTPROC)glewGetProcAddress((const GLubyte*)"wglGetExtensionsStringEXT");
+        (PFNWGLGETEXTENSIONSSTRINGEXTPROC)glewGetProcAddress((const GLubyte *)"wglGetExtensionsStringEXT");
     /* query wgl extension string */
     if (_wglewGetExtensionsStringARB == NULL)
         if (_wglewGetExtensionsStringEXT == NULL)
-            extStart = (const GLubyte*)"";
+            extStart = (const GLubyte *)"";
         else
-            extStart = (const GLubyte*)_wglewGetExtensionsStringEXT();
+            extStart = (const GLubyte *)_wglewGetExtensionsStringEXT();
     else
-        extStart = (const GLubyte*)_wglewGetExtensionsStringARB(wglGetCurrentDC());
+        extStart = (const GLubyte *)_wglewGetExtensionsStringARB(wglGetCurrentDC());
     extEnd = extStart + _glewStrLen(extStart);
     /* initialize extensions */
     crippled = _wglewGetExtensionsStringARB == NULL && _wglewGetExtensionsStringEXT == NULL;
@@ -31529,811 +31529,811 @@ GLboolean glxewIsSupported(const char *name) {
 
 #elif defined(GLEW_EGL)
 
-GLboolean eglewIsSupported(const char* name) {
-    const GLubyte* pos = (const GLubyte*)name;
+GLboolean eglewIsSupported(const char *name) {
+    const GLubyte *pos = (const GLubyte *)name;
     GLuint len = _glewStrLen(pos);
     GLboolean ret = GL_TRUE;
     while (ret && len > 0) {
-        if (_glewStrSame1(&pos, &len, (const GLubyte*)"EGL_", 4)) {
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"VERSION_", 8)) {
+        if (_glewStrSame1(&pos, &len, (const GLubyte *)"EGL_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"VERSION_", 8)) {
 #ifdef EGL_VERSION_1_0
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_0", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_0", 3)) {
                     ret = EGLEW_VERSION_1_0;
                     continue;
                 }
 #endif
 #ifdef EGL_VERSION_1_1
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_1", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_1", 3)) {
                     ret = EGLEW_VERSION_1_1;
                     continue;
                 }
 #endif
 #ifdef EGL_VERSION_1_2
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_2", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_2", 3)) {
                     ret = EGLEW_VERSION_1_2;
                     continue;
                 }
 #endif
 #ifdef EGL_VERSION_1_3
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_3", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_3", 3)) {
                     ret = EGLEW_VERSION_1_3;
                     continue;
                 }
 #endif
 #ifdef EGL_VERSION_1_4
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_4", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_4", 3)) {
                     ret = EGLEW_VERSION_1_4;
                     continue;
                 }
 #endif
 #ifdef EGL_VERSION_1_5
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"1_5", 3)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"1_5", 3)) {
                     ret = EGLEW_VERSION_1_5;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"ANDROID_", 8)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"ANDROID_", 8)) {
 #ifdef EGL_ANDROID_blob_cache
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"blob_cache", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"blob_cache", 10)) {
                     ret = EGLEW_ANDROID_blob_cache;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_create_native_client_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"create_native_client_buffer", 27)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"create_native_client_buffer", 27)) {
                     ret = EGLEW_ANDROID_create_native_client_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_framebuffer_target
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"framebuffer_target", 18)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"framebuffer_target", 18)) {
                     ret = EGLEW_ANDROID_framebuffer_target;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_front_buffer_auto_refresh
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"front_buffer_auto_refresh", 25)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"front_buffer_auto_refresh", 25)) {
                     ret = EGLEW_ANDROID_front_buffer_auto_refresh;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_image_native_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_native_buffer", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_native_buffer", 19)) {
                     ret = EGLEW_ANDROID_image_native_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_native_fence_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"native_fence_sync", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"native_fence_sync", 17)) {
                     ret = EGLEW_ANDROID_native_fence_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_presentation_time
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"presentation_time", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"presentation_time", 17)) {
                     ret = EGLEW_ANDROID_presentation_time;
                     continue;
                 }
 #endif
 #ifdef EGL_ANDROID_recordable
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"recordable", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"recordable", 10)) {
                     ret = EGLEW_ANDROID_recordable;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"ANGLE_", 6)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"ANGLE_", 6)) {
 #ifdef EGL_ANGLE_d3d_share_handle_client_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"d3d_share_handle_client_buffer", 30)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"d3d_share_handle_client_buffer", 30)) {
                     ret = EGLEW_ANGLE_d3d_share_handle_client_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_ANGLE_device_d3d
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_d3d", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_d3d", 10)) {
                     ret = EGLEW_ANGLE_device_d3d;
                     continue;
                 }
 #endif
 #ifdef EGL_ANGLE_query_surface_pointer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"query_surface_pointer", 21)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"query_surface_pointer", 21)) {
                     ret = EGLEW_ANGLE_query_surface_pointer;
                     continue;
                 }
 #endif
 #ifdef EGL_ANGLE_surface_d3d_texture_2d_share_handle
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"surface_d3d_texture_2d_share_handle", 35)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"surface_d3d_texture_2d_share_handle", 35)) {
                     ret = EGLEW_ANGLE_surface_d3d_texture_2d_share_handle;
                     continue;
                 }
 #endif
 #ifdef EGL_ANGLE_window_fixed_size
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"window_fixed_size", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"window_fixed_size", 17)) {
                     ret = EGLEW_ANGLE_window_fixed_size;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"ARM_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"ARM_", 4)) {
 #ifdef EGL_ARM_implicit_external_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"implicit_external_sync", 22)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"implicit_external_sync", 22)) {
                     ret = EGLEW_ARM_implicit_external_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_ARM_pixmap_multisample_discard
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"pixmap_multisample_discard", 26)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"pixmap_multisample_discard", 26)) {
                     ret = EGLEW_ARM_pixmap_multisample_discard;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"EXT_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"EXT_", 4)) {
 #ifdef EGL_EXT_buffer_age
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"buffer_age", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"buffer_age", 10)) {
                     ret = EGLEW_EXT_buffer_age;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_client_extensions
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"client_extensions", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"client_extensions", 17)) {
                     ret = EGLEW_EXT_client_extensions;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_create_context_robustness
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"create_context_robustness", 25)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"create_context_robustness", 25)) {
                     ret = EGLEW_EXT_create_context_robustness;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_device_base
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_base", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_base", 11)) {
                     ret = EGLEW_EXT_device_base;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_device_drm
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_drm", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_drm", 10)) {
                     ret = EGLEW_EXT_device_drm;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_device_enumeration
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_enumeration", 18)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_enumeration", 18)) {
                     ret = EGLEW_EXT_device_enumeration;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_device_openwf
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_openwf", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_openwf", 13)) {
                     ret = EGLEW_EXT_device_openwf;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_device_query
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_query", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_query", 12)) {
                     ret = EGLEW_EXT_device_query;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_gl_colorspace_bt2020_linear
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace_bt2020_linear", 27)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_colorspace_bt2020_linear", 27)) {
                     ret = EGLEW_EXT_gl_colorspace_bt2020_linear;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_gl_colorspace_bt2020_pq
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace_bt2020_pq", 23)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_colorspace_bt2020_pq", 23)) {
                     ret = EGLEW_EXT_gl_colorspace_bt2020_pq;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_gl_colorspace_scrgb_linear
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace_scrgb_linear", 26)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_colorspace_scrgb_linear", 26)) {
                     ret = EGLEW_EXT_gl_colorspace_scrgb_linear;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_image_dma_buf_import
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_dma_buf_import", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_dma_buf_import", 20)) {
                     ret = EGLEW_EXT_image_dma_buf_import;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_image_dma_buf_import_modifiers
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_dma_buf_import_modifiers", 30)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_dma_buf_import_modifiers", 30)) {
                     ret = EGLEW_EXT_image_dma_buf_import_modifiers;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_multiview_window
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"multiview_window", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"multiview_window", 16)) {
                     ret = EGLEW_EXT_multiview_window;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_output_base
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"output_base", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"output_base", 11)) {
                     ret = EGLEW_EXT_output_base;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_output_drm
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"output_drm", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"output_drm", 10)) {
                     ret = EGLEW_EXT_output_drm;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_output_openwf
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"output_openwf", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"output_openwf", 13)) {
                     ret = EGLEW_EXT_output_openwf;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_pixel_format_float
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"pixel_format_float", 18)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"pixel_format_float", 18)) {
                     ret = EGLEW_EXT_pixel_format_float;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_platform_base
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_base", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_base", 13)) {
                     ret = EGLEW_EXT_platform_base;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_platform_device
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_device", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_device", 15)) {
                     ret = EGLEW_EXT_platform_device;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_platform_wayland
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_wayland", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_wayland", 16)) {
                     ret = EGLEW_EXT_platform_wayland;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_platform_x11
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_x11", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_x11", 12)) {
                     ret = EGLEW_EXT_platform_x11;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_protected_content
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"protected_content", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"protected_content", 17)) {
                     ret = EGLEW_EXT_protected_content;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_protected_surface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"protected_surface", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"protected_surface", 17)) {
                     ret = EGLEW_EXT_protected_surface;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_stream_consumer_egloutput
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_consumer_egloutput", 25)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_consumer_egloutput", 25)) {
                     ret = EGLEW_EXT_stream_consumer_egloutput;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_surface_SMPTE2086_metadata
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"surface_SMPTE2086_metadata", 26)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"surface_SMPTE2086_metadata", 26)) {
                     ret = EGLEW_EXT_surface_SMPTE2086_metadata;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_swap_buffers_with_damage
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"swap_buffers_with_damage", 24)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"swap_buffers_with_damage", 24)) {
                     ret = EGLEW_EXT_swap_buffers_with_damage;
                     continue;
                 }
 #endif
 #ifdef EGL_EXT_yuv_surface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"yuv_surface", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"yuv_surface", 11)) {
                     ret = EGLEW_EXT_yuv_surface;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"HI_", 3)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"HI_", 3)) {
 #ifdef EGL_HI_clientpixmap
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"clientpixmap", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"clientpixmap", 12)) {
                     ret = EGLEW_HI_clientpixmap;
                     continue;
                 }
 #endif
 #ifdef EGL_HI_colorformats
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"colorformats", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"colorformats", 12)) {
                     ret = EGLEW_HI_colorformats;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"IMG_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"IMG_", 4)) {
 #ifdef EGL_IMG_context_priority
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"context_priority", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"context_priority", 16)) {
                     ret = EGLEW_IMG_context_priority;
                     continue;
                 }
 #endif
 #ifdef EGL_IMG_image_plane_attribs
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_plane_attribs", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_plane_attribs", 19)) {
                     ret = EGLEW_IMG_image_plane_attribs;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"KHR_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"KHR_", 4)) {
 #ifdef EGL_KHR_cl_event
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"cl_event", 8)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"cl_event", 8)) {
                     ret = EGLEW_KHR_cl_event;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_cl_event2
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"cl_event2", 9)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"cl_event2", 9)) {
                     ret = EGLEW_KHR_cl_event2;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_client_get_all_proc_addresses
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"client_get_all_proc_addresses", 29)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"client_get_all_proc_addresses", 29)) {
                     ret = EGLEW_KHR_client_get_all_proc_addresses;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_config_attribs
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"config_attribs", 14)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"config_attribs", 14)) {
                     ret = EGLEW_KHR_config_attribs;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_context_flush_control
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"context_flush_control", 21)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"context_flush_control", 21)) {
                     ret = EGLEW_KHR_context_flush_control;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_create_context
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"create_context", 14)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"create_context", 14)) {
                     ret = EGLEW_KHR_create_context;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_create_context_no_error
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"create_context_no_error", 23)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"create_context_no_error", 23)) {
                     ret = EGLEW_KHR_create_context_no_error;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_debug
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"debug", 5)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"debug", 5)) {
                     ret = EGLEW_KHR_debug;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_fence_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"fence_sync", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"fence_sync", 10)) {
                     ret = EGLEW_KHR_fence_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_get_all_proc_addresses
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"get_all_proc_addresses", 22)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"get_all_proc_addresses", 22)) {
                     ret = EGLEW_KHR_get_all_proc_addresses;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_gl_colorspace
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_colorspace", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_colorspace", 13)) {
                     ret = EGLEW_KHR_gl_colorspace;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_gl_renderbuffer_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_renderbuffer_image", 21)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_renderbuffer_image", 21)) {
                     ret = EGLEW_KHR_gl_renderbuffer_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_gl_texture_2D_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_texture_2D_image", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_texture_2D_image", 19)) {
                     ret = EGLEW_KHR_gl_texture_2D_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_gl_texture_3D_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_texture_3D_image", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_texture_3D_image", 19)) {
                     ret = EGLEW_KHR_gl_texture_3D_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_gl_texture_cubemap_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"gl_texture_cubemap_image", 24)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"gl_texture_cubemap_image", 24)) {
                     ret = EGLEW_KHR_gl_texture_cubemap_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image", 5)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image", 5)) {
                     ret = EGLEW_KHR_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_image_base
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_base", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_base", 10)) {
                     ret = EGLEW_KHR_image_base;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_image_pixmap
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_pixmap", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_pixmap", 12)) {
                     ret = EGLEW_KHR_image_pixmap;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_lock_surface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"lock_surface", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"lock_surface", 12)) {
                     ret = EGLEW_KHR_lock_surface;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_lock_surface2
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"lock_surface2", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"lock_surface2", 13)) {
                     ret = EGLEW_KHR_lock_surface2;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_lock_surface3
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"lock_surface3", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"lock_surface3", 13)) {
                     ret = EGLEW_KHR_lock_surface3;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_mutable_render_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"mutable_render_buffer", 21)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"mutable_render_buffer", 21)) {
                     ret = EGLEW_KHR_mutable_render_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_no_config_context
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"no_config_context", 17)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"no_config_context", 17)) {
                     ret = EGLEW_KHR_no_config_context;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_partial_update
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"partial_update", 14)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"partial_update", 14)) {
                     ret = EGLEW_KHR_partial_update;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_platform_android
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_android", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_android", 16)) {
                     ret = EGLEW_KHR_platform_android;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_platform_gbm
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_gbm", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_gbm", 12)) {
                     ret = EGLEW_KHR_platform_gbm;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_platform_wayland
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_wayland", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_wayland", 16)) {
                     ret = EGLEW_KHR_platform_wayland;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_platform_x11
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_x11", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_x11", 12)) {
                     ret = EGLEW_KHR_platform_x11;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_reusable_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"reusable_sync", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"reusable_sync", 13)) {
                     ret = EGLEW_KHR_reusable_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream", 6)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream", 6)) {
                     ret = EGLEW_KHR_stream;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_attrib
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_attrib", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_attrib", 13)) {
                     ret = EGLEW_KHR_stream_attrib;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_consumer_gltexture
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_consumer_gltexture", 25)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_consumer_gltexture", 25)) {
                     ret = EGLEW_KHR_stream_consumer_gltexture;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_cross_process_fd
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_process_fd", 23)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_process_fd", 23)) {
                     ret = EGLEW_KHR_stream_cross_process_fd;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_fifo
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_fifo", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_fifo", 11)) {
                     ret = EGLEW_KHR_stream_fifo;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_producer_aldatalocator
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_producer_aldatalocator", 29)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_producer_aldatalocator", 29)) {
                     ret = EGLEW_KHR_stream_producer_aldatalocator;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_stream_producer_eglsurface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_producer_eglsurface", 26)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_producer_eglsurface", 26)) {
                     ret = EGLEW_KHR_stream_producer_eglsurface;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_surfaceless_context
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"surfaceless_context", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"surfaceless_context", 19)) {
                     ret = EGLEW_KHR_surfaceless_context;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_swap_buffers_with_damage
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"swap_buffers_with_damage", 24)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"swap_buffers_with_damage", 24)) {
                     ret = EGLEW_KHR_swap_buffers_with_damage;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_vg_parent_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"vg_parent_image", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"vg_parent_image", 15)) {
                     ret = EGLEW_KHR_vg_parent_image;
                     continue;
                 }
 #endif
 #ifdef EGL_KHR_wait_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"wait_sync", 9)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"wait_sync", 9)) {
                     ret = EGLEW_KHR_wait_sync;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"MESA_", 5)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"MESA_", 5)) {
 #ifdef EGL_MESA_drm_image
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"drm_image", 9)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"drm_image", 9)) {
                     ret = EGLEW_MESA_drm_image;
                     continue;
                 }
 #endif
 #ifdef EGL_MESA_image_dma_buf_export
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_dma_buf_export", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_dma_buf_export", 20)) {
                     ret = EGLEW_MESA_image_dma_buf_export;
                     continue;
                 }
 #endif
 #ifdef EGL_MESA_platform_gbm
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_gbm", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_gbm", 12)) {
                     ret = EGLEW_MESA_platform_gbm;
                     continue;
                 }
 #endif
 #ifdef EGL_MESA_platform_surfaceless
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"platform_surfaceless", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"platform_surfaceless", 20)) {
                     ret = EGLEW_MESA_platform_surfaceless;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"NOK_", 4)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"NOK_", 4)) {
 #ifdef EGL_NOK_swap_region
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"swap_region", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"swap_region", 11)) {
                     ret = EGLEW_NOK_swap_region;
                     continue;
                 }
 #endif
 #ifdef EGL_NOK_swap_region2
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"swap_region2", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"swap_region2", 12)) {
                     ret = EGLEW_NOK_swap_region2;
                     continue;
                 }
 #endif
 #ifdef EGL_NOK_texture_from_pixmap
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"texture_from_pixmap", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"texture_from_pixmap", 19)) {
                     ret = EGLEW_NOK_texture_from_pixmap;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"NV_", 3)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"NV_", 3)) {
 #ifdef EGL_NV_3dvision_surface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"3dvision_surface", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"3dvision_surface", 16)) {
                     ret = EGLEW_NV_3dvision_surface;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_coverage_sample
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"coverage_sample", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"coverage_sample", 15)) {
                     ret = EGLEW_NV_coverage_sample;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_coverage_sample_resolve
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"coverage_sample_resolve", 23)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"coverage_sample_resolve", 23)) {
                     ret = EGLEW_NV_coverage_sample_resolve;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_cuda_event
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"cuda_event", 10)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"cuda_event", 10)) {
                     ret = EGLEW_NV_cuda_event;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_depth_nonlinear
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"depth_nonlinear", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"depth_nonlinear", 15)) {
                     ret = EGLEW_NV_depth_nonlinear;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_device_cuda
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"device_cuda", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"device_cuda", 11)) {
                     ret = EGLEW_NV_device_cuda;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_native_query
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"native_query", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"native_query", 12)) {
                     ret = EGLEW_NV_native_query;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_post_convert_rounding
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"post_convert_rounding", 21)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"post_convert_rounding", 21)) {
                     ret = EGLEW_NV_post_convert_rounding;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_post_sub_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"post_sub_buffer", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"post_sub_buffer", 15)) {
                     ret = EGLEW_NV_post_sub_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_robustness_video_memory_purge
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"robustness_video_memory_purge", 29)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"robustness_video_memory_purge", 29)) {
                     ret = EGLEW_NV_robustness_video_memory_purge;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_consumer_gltexture_yuv
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_consumer_gltexture_yuv", 29)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_consumer_gltexture_yuv", 29)) {
                     ret = EGLEW_NV_stream_consumer_gltexture_yuv;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_cross_display
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_display", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_display", 20)) {
                     ret = EGLEW_NV_stream_cross_display;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_cross_object
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_object", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_object", 19)) {
                     ret = EGLEW_NV_stream_cross_object;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_cross_partition
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_partition", 22)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_partition", 22)) {
                     ret = EGLEW_NV_stream_cross_partition;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_cross_process
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_process", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_process", 20)) {
                     ret = EGLEW_NV_stream_cross_process;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_cross_system
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_cross_system", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_cross_system", 19)) {
                     ret = EGLEW_NV_stream_cross_system;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_fifo_next
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_fifo_next", 16)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_fifo_next", 16)) {
                     ret = EGLEW_NV_stream_fifo_next;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_fifo_synchronous
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_fifo_synchronous", 23)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_fifo_synchronous", 23)) {
                     ret = EGLEW_NV_stream_fifo_synchronous;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_frame_limits
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_frame_limits", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_frame_limits", 19)) {
                     ret = EGLEW_NV_stream_frame_limits;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_metadata
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_metadata", 15)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_metadata", 15)) {
                     ret = EGLEW_NV_stream_metadata;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_remote
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_remote", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_remote", 13)) {
                     ret = EGLEW_NV_stream_remote;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_reset
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_reset", 12)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_reset", 12)) {
                     ret = EGLEW_NV_stream_reset;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_socket
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_socket", 13)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_socket", 13)) {
                     ret = EGLEW_NV_stream_socket;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_socket_inet
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_socket_inet", 18)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_socket_inet", 18)) {
                     ret = EGLEW_NV_stream_socket_inet;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_socket_unix
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_socket_unix", 18)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_socket_unix", 18)) {
                     ret = EGLEW_NV_stream_socket_unix;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_stream_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"stream_sync", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"stream_sync", 11)) {
                     ret = EGLEW_NV_stream_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_sync
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"sync", 4)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"sync", 4)) {
                     ret = EGLEW_NV_sync;
                     continue;
                 }
 #endif
 #ifdef EGL_NV_system_time
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"system_time", 11)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"system_time", 11)) {
                     ret = EGLEW_NV_system_time;
                     continue;
                 }
 #endif
             }
-            if (_glewStrSame2(&pos, &len, (const GLubyte*)"TIZEN_", 6)) {
+            if (_glewStrSame2(&pos, &len, (const GLubyte *)"TIZEN_", 6)) {
 #ifdef EGL_TIZEN_image_native_buffer
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_native_buffer", 19)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_native_buffer", 19)) {
                     ret = EGLEW_TIZEN_image_native_buffer;
                     continue;
                 }
 #endif
 #ifdef EGL_TIZEN_image_native_surface
-                if (_glewStrSame3(&pos, &len, (const GLubyte*)"image_native_surface", 20)) {
+                if (_glewStrSame3(&pos, &len, (const GLubyte *)"image_native_surface", 20)) {
                     ret = EGLEW_TIZEN_image_native_surface;
                     continue;
                 }

@@ -1,9 +1,5 @@
-#ifdef WIN32
-#include <GL/glew.h>
-#else
 #define GL_GLEXT_PROTOTYPES
 #include <SDL3/SDL_opengles2.h>
-#endif
 
 #define SDL_MAIN_USE_CALLBACKS  // use the callbacks instead of main()
 #include <SDL3/SDL.h>
@@ -299,7 +295,7 @@ bool init_vosk_model(AppState &as, const std::string &model_path) {
         "l",      "m",     "n",       "o",      "p",       "q",     "r",        "s",     "t",    "u",       "v",
         "w",      "x",     "y",       "z",      "alfa",    "bravo", "charlie",  "delta", "echo", "foxtrot", "golf",
         "hotel",  "india", "juliet",  "kilo",   "lima",    "mike",  "november", "oscar", "papa", "quebec",  "romeo",
-        "sierra", "tango", "uniform", "victor", "whiskey", "xray",  "yankee",   "zulu"};
+        "sierra", "tango", "uniform", "victor", "whiskey", "x ray", "yankee",   "zulu"};
 
     std::string grammar("[");
 
@@ -376,7 +372,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
                                      SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS,
                                      &as->window,
                                      &as->renderer)) {
-        LOG("SDL_CreateWindowAndRenderer failed");
+        LOG("SDL_CreateWindowAndRenderer failed: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
@@ -391,10 +387,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     as->gl_ctx = SDL_GL_CreateContext(as->window);
     SDL_GL_MakeCurrent(as->window, as->gl_ctx);
     enable_gl_debug_callback();
-#endif
-
-#ifdef WIN32
-    glewInit();
 #endif
 
     if (!init_font(*as, asset_path)) {

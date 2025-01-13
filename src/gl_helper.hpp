@@ -1,11 +1,7 @@
 #pragma once
 
-#ifdef WIN32
-#include <GL/glew.h>
-#else
 #define GL_GLEXT_PROTOTYPES
 #include <SDL3/SDL_opengles2.h>
-#endif
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
