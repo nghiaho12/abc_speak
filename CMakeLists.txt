@@ -59,6 +59,7 @@ elseif(WIN32)
 
     install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
     install(DIRECTORY assets DESTINATION .)
+    install(DIRECTORY /win32/share/licenses DESTINATION .)
     install(FILES 
         README.md 
         LICENSE 

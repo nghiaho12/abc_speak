@@ -112,6 +112,9 @@ RUN cd /vosk-api/src && \
         make -j4 && \
     cp libvosk.* /win32/lib
 
+RUN mkdir -p /win32/share/licenses/vosk-api && \
+    cp /vosk-api/COPYING /win32/share/licenses/vosk-api
+
 FROM base AS build_project
 COPY --from=build_sdl /win32 /win32
 COPY --from=build_sdl /SDL/src/video/khronos/GLES2 /win32/include/GLES2
