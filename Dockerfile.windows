@@ -35,6 +35,8 @@ RUN cd /glm && \
         -DBUILD_SHARED_LIBS=OFF && \
     cmake --build build && \
     cmake --install build --prefix=/win32
+RUN mkdir -p /win32/share/licenses/glm && \
+    cp /glm/copying.txt /win32/share/licenses/glm
 
 FROM base AS build_openblas
 RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
@@ -46,6 +48,8 @@ RUN cd /OpenBLAS && \
     cmake --build build --parallel 6 && \
     cmake --install build --prefix=/win32 && \
     cp ./lapack-netlib/LAPACKE/include/*.h /win32/include
+RUN mkdir -p /win32/share/licenses/OpenBLAS && \
+    cp /OpenBLAS/LICENSE /win32/share/licenses/OpenBLAS 
 
 FROM base AS build_clapack
 RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
@@ -77,6 +81,8 @@ RUN git clone https://github.com/alphacep/openfst
         --host=x86_64-windows && \
     make -j 8 && \
     make install
+RUN mkdir -p /win32/share/licenses/openfst && \
+    cp /openfst/COPYING /win32/share/licenses/openfst
 
 FROM base AS build_vosk
 COPY --from=build_openblas /win32 /win32
@@ -100,6 +106,8 @@ RUN cd /kaldi/src && \
     cd /kaldi/src && \
     sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
     make -j 6 online2 rnnlm
+RUN mkdir -p /win32/share/licenses/kaldi && \
+    cp /kaldi/COPYING /win32/share/licenses/kaldi 
 
 RUN git clone https://github.com/alphacep/vosk-api 
 RUN cd /vosk-api/src && \
