@@ -13,7 +13,7 @@ Vosk (https://alphacephei.com/vosk/) is used for speech recognition.
 ![screenshot](screenshot.png)
 
 # Binary release
-Go to for binary release packages.
+See the Github releases page.
 
 # Building from source
 ## Prerequisite
