@@ -23,6 +23,8 @@ RUN cd /glm && \
         -DBUILD_SHARED_LIBS=OFF && \
     cmake --build build && \
     cmake --install build --prefix=/usr/local
+RUN mkdir -p /usr/local/share/licenses/glm && \
+    cp /glm/copying.txt /usr/local/share/licenses/glm
 
 FROM base AS build_openblas
 RUN git clone -b v0.3.28 --single-branch https://github.com/OpenMathLib/OpenBLAS 
@@ -33,6 +35,8 @@ RUN cd /OpenBLAS && \
     cmake --build build --parallel 6 && \
     cmake --install build --prefix=/usr/local && \
     cp ./lapack-netlib/LAPACKE/include/*.h /usr/local/include
+RUN mkdir -p /usr/local/share/licenses/OpenBLAS && \
+    cp /OpenBLAS/LICENSE /usr/local/share/licenses/OpenBLAS 
 
 FROM base AS build_clapack
 RUN git clone -b v3.2.1 --single-branch https://github.com/alphacep/clapack
@@ -60,6 +64,8 @@ RUN git clone https://github.com/alphacep/openfst
         --enable-ngram-fsts && \
     make -j 8 && \
     make install
+RUN mkdir -p /usr/local/share/licenses/openfst && \
+    cp /openfst/COPYING /usr/local/share/licenses/openfst
 
 FROM base AS build_vosk
 COPY --from=build_openblas /usr/local /usr/local
@@ -82,6 +88,8 @@ RUN cd /kaldi/src && \
     cd /kaldi/src && \
     sed -i 's/-DHAVE_EXECINFO_H=1//' kaldi.mk && \
     make -j 6 online2 rnnlm
+RUN mkdir -p /usr/local/share/licenses/kaldi && \
+    cp /kaldi/COPYING /usr/local/share/licenses/kaldi 
 
 RUN git clone https://github.com/alphacep/vosk-api 
 RUN cd /vosk-api/src && \
@@ -91,6 +99,8 @@ RUN cd /vosk-api/src && \
     OPENBLAS_ROOT=/usr/local\
         make -j4 && \
     cp libvosk.* /usr/local/lib
+RUN mkdir -p /usr/local/share/licenses/vosk-api && \
+    cp /vosk-api/COPYING /usr/local/share/licenses/vosk-api
 
 FROM base AS build_project
 COPY --from=build_sdl /usr/local /usr/local

@@ -42,6 +42,7 @@ if (EMSCRIPTEN)
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /wasm/lib)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -sFULL_ES3 -sASSERTIONS -g -sALLOW_MEMORY_GROWTH --embed-file assets)
 
+    install(DIRECTORY /wasm/share/licenses DESTINATION .)
     install(FILES 
         README.md 
         LICENSE 
@@ -79,6 +80,7 @@ else()
     # Linux
     install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION .)
     install(DIRECTORY assets DESTINATION .)
+    install(DIRECTORY /usr/local/share/licenses DESTINATION .)
     install(FILES 
         README.md 
         LICENSE 
