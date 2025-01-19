@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e
 
 docker build -f Dockerfile.linux -t abc_speak:linux .
 docker run --rm -it -v /tmp:/tmp --network=host abc_speak:linux /bin/bash -c 'cp /abc_speak/build/release/* /tmp'
