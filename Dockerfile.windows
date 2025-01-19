@@ -143,7 +143,6 @@ RUN cd /tmp && \
     
 WORKDIR /abc_speak
 COPY src /abc_speak/src
-COPY src/GL /win32/include/GL
 COPY assets /abc_speak/assets
 COPY CMakeLists.txt /abc_speak
 COPY README.md /abc_speak
