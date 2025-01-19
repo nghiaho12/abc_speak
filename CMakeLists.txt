@@ -54,6 +54,7 @@ if (EMSCRIPTEN)
     set(CPACK_GENERATOR "ZIP")
     include(CPack)
 elseif(WIN32)
+    set(CPACK_SYSTEM_NAME Windows)
     target_link_directories(${EXECUTABLE_NAME} PRIVATE /win32/lib)
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE GLESv2)
     target_link_options(${EXECUTABLE_NAME} PRIVATE -static-libgcc -static-libstdc++)
@@ -70,8 +71,8 @@ elseif(WIN32)
         /win32/lib/libvosk.dll 
         /usr/x86_64-w64-mingw32/lib/zlib1.dll
         /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
-        /tmp/mingw64/bin/libstdc++-6.dll # libGLESv2.dll needs this specific version
-        /tmp/mingw64/bin/libgcc_s_seh-1.dll # libGLESv2.dll 
+        /msys2/mingw64/bin/libstdc++-6.dll # libGLESv2.dll needs this specific version from MSYS2
+        /msys2/mingw64/bin/libgcc_s_seh-1.dll 
         DESTINATION .)
 
     set(CPACK_GENERATOR "ZIP")
