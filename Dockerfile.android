@@ -89,10 +89,10 @@ RUN cd /SDL/build/org.libsdl.abc_speak/app/src/main/assets && \
     mkdir vosk-api && cp /vosk-api/COPYING vosk-api
 
 RUN cd /SDL/build/org.libsdl.abc_speak && \
-    ANDROID_HOME=/android-sdk ANDROID_NDK_HOME=/android-ndk-r27c ./gradlew assembleDebug
+    ANDROID_HOME=/android-sdk ANDROID_NDK_HOME=/android-ndk-r27c ./gradlew assembleRelease
 
 ENV VERSION=1.0.0
-RUN mv /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/app-debug.apk \
-    /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug/abc_speak-${VERSION}-Android.apk
+RUN mv /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/release/app-release-unsigned.apk \
+    /SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/release/abc_speak-${VERSION}-Android.apk
 
-CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/debug"]
+CMD ["/usr/bin/python3", "-m", "http.server", "--directory", "/SDL/build/org.libsdl.abc_speak/app/build/outputs/apk/release"]
